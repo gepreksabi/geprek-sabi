@@ -35,9 +35,9 @@
     <header class="bg-white shadow-sm sticky top-0 z-30 border-b border-amber-100">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <img src="Logo.png" alt="Geprek Asyir Logo" class="w-11 h-11 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
+                <img src="Logo.png" alt="Geprek Sabi Logo" class="w-11 h-11 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
                 <div>
-                    <h1 class="font-arco text-xl text-brand-darkred leading-tight tracking-wide">GEPREK ASYIR</h1>
+                    <h1 class="font-arco text-xl text-brand-darkred leading-tight tracking-wide">GEPREK SABI</h1>
                     <p class="text-[10px] font-bold text-brand-red tracking-wider">JAGONYA AYAM GEPREK</p>
                 </div>
             </div>
@@ -65,7 +65,7 @@
         <div class="max-w-md mx-auto mb-6">
             <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">🔍</span>
-                <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Cari geprek, combo, atau minuman..." class="w-full pl-10 pr-4 py-2.5 bg-white text-xs sm:text-sm rounded-full border border-amber-200 shadow-sm focus:outline-none focus:border-brand-red transition">
+                <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Cari geprek atau minuman..." class="w-full pl-10 pr-4 py-2.5 bg-white text-xs sm:text-sm rounded-full border border-amber-200 shadow-sm focus:outline-none focus:border-brand-red transition">
             </div>
         </div>
 
@@ -73,7 +73,6 @@
             <button onclick="filterCategory('all', this)" class="tab-btn tab-pill-active bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Semua</button>
             <button onclick="filterCategory('basic', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Basic Menu</button>
             <button onclick="filterCategory('special', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Special Menu</button>
-            <button onclick="filterCategory('combo', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Geprek Combo</button>
             <button onclick="filterCategory('drink', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">🥤 Minuman</button>
             <button onclick="filterCategory('addon', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">➕ Tambahan</button>
         </div>
@@ -83,10 +82,10 @@
 
     <!-- FOOTER -->
     <footer class="bg-white text-slate-500 py-6 text-center text-xs border-t border-amber-100 mt-12">
-        <p class="font-bold text-brand-darkred text-sm">GEPREK ASYIR — Jagonya Ayam Geprek</p>
+        <p class="font-bold text-brand-darkred text-sm">GEPREK SABI — Jagonya Ayam Geprek</p>
         <p class="mt-2">🕘 Jam buka 09:00 – 21:00 (waktu Kairo)</p>
         <div id="footer-links" class="mt-3 flex items-center justify-center flex-wrap gap-3 font-semibold"></div>
-        <p class="mt-3 opacity-70">&copy; 2026 GEPREK ASYIR. All Rights Reserved.</p>
+        <p class="mt-3 opacity-70">&copy; 2026 GEPREK SABI. All Rights Reserved.</p>
     </footer>
 
     <!-- MODAL OPSI -->
@@ -95,7 +94,7 @@
             <button onclick="closeOptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
             <h3 id="modal-item-title" class="text-lg font-bold text-slate-800 pr-6">Pilih Opsi Menu</h3>
             <p id="modal-item-desc" class="text-xs text-slate-400 mt-1">Silakan pilih variasi paket untuk pesanan ini:</p>
-            <div class="mt-5 space-y-3" id="modal-options-container"></div>
+            <div class="mt-5 space-y-3 max-h-[60vh] overflow-y-auto" id="modal-options-container"></div>
         </div>
     </div>
 
@@ -142,6 +141,7 @@
 
             <div>
                 <div id="min-hint" class="hidden mb-3 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 rounded-xl p-2.5"></div>
+                <div id="dada-hint" class="hidden mb-3 text-[11px] font-bold text-red-800 bg-red-100 border border-red-200 rounded-xl p-2.5"></div>
                 <label class="block text-xs font-bold text-slate-700 mb-2">Metode Pembayaran *</label>
                 <div class="grid grid-cols-3 gap-2">
                     <button type="button" onclick="setPayment('tunai')" id="btn-pay-tunai" class="pay-btn bg-brand-red text-white font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">💵 Tunai</button>
@@ -174,28 +174,23 @@
     </div>
 
     <script>
-        const nomorWA = "201508354517";
+        const nomorWA = "6282233042361";
 
         // ===== PENGATURAN (silakan ubah) =====
         const BUKA_JAM = 9, TUTUP_JAM = 21;      // jam operasional, waktu Kairo
+        const REKENING = { bank: 'Bank Jago Syariah', nomor: '507972901271', nama: 'Saghira Razita' };
+        const SAMBAL_CHOICES = ['Merah', 'Manis', 'Hijau', 'Terasi'];
         const LE_PER_1000_IDR = 2.7;             // kurs: 2,7 L.E = Rp 1.000 (100 L.E = Rp 37.000)
-        const LINK_MAPS = "https://maps.app.goo.gl/93S9YQ1M4aMkqYfR8"; // Google Maps / Business Profile
-        const LINK_IG = "https://instagram.com/geprek.asyir";
-        const LINK_TIKTOK = "https://www.tiktok.com/@geprek.asyir";
-        const CART_KEY = 'geprek_cart_v1', CUST_KEY = 'geprek_cust_v1';
+        const LINK_MAPS = "";                    // isi link Google Maps setelah lokasi muncul di Google Maps
+        const LINK_IG = "https://instagram.com/geprek_sabi";
+        const LINK_TIKTOK = "";                  // belum ada
+        const CART_KEY = 'sabi_cart_v1', CUST_KEY = 'sabi_cust_v1';
+        const TERASI_EXTRA = 5;                  // tambahan harga per pilihan sambal terasi (L.E)
 
         // Tarif ongkir (Tausil). minItems = minimal PORSI MAKANAN (minuman tidak dihitung)
         const deliveryRates = [
-            { id: 'h10_1', name: 'Hay Asyir (Musalas - Mahattoh Madrosah)', fee: 5, minItems: 1 },
-            { id: 'h10_2', name: 'Hay Asyir (Bada Mahattoh - Mahdy Arafah)', fee: 10, minItems: 1 },
-            { id: 'h9', name: "Hay Tasi'", fee: 10, minItems: 1 },
-            { id: 'h8', name: 'Hay Tsamin', fee: 15, minItems: 2 },
-            { id: 'zahro', name: 'Zahro', fee: 15, minItems: 3 },
-            { id: 'tabbah', name: 'Tabbah', fee: 15, minItems: 3 },
-            { id: 'gami', name: 'Gami', fee: 10, minItems: 1 },
-            { id: 'bawwabat', name: 'Bawwabat', fee: 15, minItems: 1 },
-            { id: 'h7', name: 'Hay Sabi', fee: 25, minItems: 5 },
-            { id: 'abbas', name: 'Abbas Akkad', fee: 25, minItems: 5 }
+            { id: 'awal', name: 'Awwal Sabi', fee: 5, minItems: 1 },
+            { id: 'akhir', name: 'Akhir Sabi', fee: 5, minItems: 1 }
         ];
 
         // Helper untuk menyingkat data menu
@@ -212,47 +207,28 @@
         // portions = jumlah porsi makanan (untuk syarat minimal pesanan Tausil). Minuman = 0.
         const menuData = [
             // BASIC MENU
-            { id: 'b1', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Manis', desc: 'Ayam gurih krispi dipadu sambal manis khas Geprek Asyir.', badge: 'Favoritoo', icon: img('manis-chicken.jpg'), hasOptions: true, options: nasi(80, 70), portions: 1 },
-            { id: 'b2', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Merah', desc: 'Ayam krispi renyah berpadu dengan sambal cabai merah asli yang pedas mantap.', badge: 'Terlaris', icon: img('merah-chicken.jpg'), hasOptions: true, options: nasi(80, 70), portions: 1 },
-            { id: 'b3', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Hijau', desc: 'Ayam geprek berpadu sambal ijo gurih dan segar menggugah selera.', badge: 'Pedes Seger', icon: img('hijau-chicken.jpg'), hasOptions: true, options: nasi(80, 70), portions: 1 },
+            { id: 'b2', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Hijau', desc: 'Ayam geprek berpadu sambal ijo gurih dan segar menggugah selera.', badge: 'Pedes Seger', icon: img('hijau-chicken.jpg'), hasOptions: true, options: nasi(80, 75), portions: 1 },
+            { id: 'b1', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Merah', desc: 'Ayam krispi renyah berpadu dengan sambal cabai merah asli yang pedas mantap.', badge: 'Terlaris', icon: img('merah-chicken.jpg'), hasOptions: true, options: nasi(80, 75), portions: 1 },
+            { id: 'b3', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Manis', desc: 'Ayam gurih krispi dipadu sambal manis khas Geprek Sabi.', badge: 'Favoritoo', icon: img('manis-chicken.jpg'), hasOptions: true, options: nasi(80, 75), portions: 1 },
+            { id: 'b4', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Terasi', desc: 'Ayam krispi dengan sambal terasi yang gurih, harum, dan pedas menggoda.', badge: 'Aroma Terasi', icon: '🌶️', hasOptions: true, options: nasi(85, 80), portions: 1 },
 
             // SPECIAL MENU
-            { id: 's1', category: 'special', name: 'Ayam Geprek/Krispi Fire Chicken', desc: 'Ayam krispi dibaluri saos lava yang juara.', badge: 'Lava Lover Choice', icon: img('fire-chicken.jpg'), hasOptions: true, options: nasi(95, 85), portions: 1 },
-            { id: 's2', category: 'special', name: 'Ayam Geprek/Krispi Richeese', desc: 'Saus keju gurih creamy lezat memanjakan lidah.', badge: 'Rekomendasi', icon: img('richeese-chicken.jpg'), hasOptions: true, options: nasi(95, 85), portions: 1 },
-            { id: 's3', category: 'special', name: 'Ayam Geprek/Krispi 3 Sambal', desc: 'Sensasi 3 rasa sambal dalam satu porsi sajian.', badge: 'Best Combination', icon: img('3sambal-chicken.jpg'), hasOptions: true, options: nasi(95, 85), portions: 1 },
-            { id: 's4', category: 'special', name: 'Ayam Geprek/Krispi Mozarella', desc: 'Keju mozarella mulur meleleh di atas ayam geprek.', badge: 'Cheese Melt', icon: img('moza-chicken.jpg'), hasOptions: true, options: nasi(95, 85), portions: 1 },
-
-            // GEPREK COMBO
-            { id: 'c1', category: 'combo', name: 'Combo Jayyid', desc: 'Paket Hemat: 5 Ayam + 5 Nasi + 5 Sambal', badge: 'Hemat Rame-Rame', icon: img('jayyid.jpg'), hasOptions: false, price: 380, portions: 5, sambalPick: true },
-            { id: 'c2', category: 'combo', name: 'Combo Jayyid Jiddan', desc: 'Paket Pesta: 7 Ayam + 7 Nasi + 7 Sambal', badge: 'Pilihan Favorit', icon: img('jayjid.jpg'), hasOptions: false, price: 540, portions: 7, sambalPick: true },
-            { id: 'c3', category: 'combo', name: 'Combo Mumtazz', desc: 'Paket Puas Banget: 9 Ayam + 9 Nasi + 9 Sambal', badge: 'Super Komplit', icon: img('mumtaz.jpg'), hasOptions: false, price: 700, portions: 9, sambalPick: true },
+            // sambalSlots = jumlah sambal yang dipilih; nasiPrice = [dengan nasi, tanpa nasi]; terasi +TERASI_EXTRA per pilihan
+            { id: 's1', category: 'special', name: 'Ayam Geprek/Krispi Fire Chicken', desc: 'Ayam krispi dibaluri saos lava yang juara.', badge: 'Lava Lover Choice', icon: img('fire-chicken.jpg'), hasOptions: true, options: nasi(100, 95), portions: 1 },
+            { id: 's2', category: 'special', name: 'Ayam Geprek/Krispi Richeese', desc: 'Saus keju gurih creamy lezat. Pilih sambal merah, manis, atau hijau (terasi +5 L.E).', badge: 'Rekomendasi', icon: img('richeese-chicken.jpg'), hasOptions: false, price: 95, nasiPrice: [100, 95], sambalSlots: 1, portions: 1 },
+            { id: 's4', category: 'special', name: 'Ayam Geprek/Krispi 3 Sambal', desc: 'Sensasi 3 rasa sambal dalam satu porsi. Pilih 3 sambal (terasi +5 L.E per pilihan).', badge: 'Best Combination', icon: img('3sambal-chicken.jpg'), hasOptions: false, price: 90, nasiPrice: [95, 90], sambalSlots: 3, portions: 1 },
+            { id: 's3', category: 'special', name: 'Ayam Geprek/Krispi Mozarella', desc: 'Keju mozarella mulur meleleh. Pilih sambal merah, manis, atau hijau (terasi +5 L.E).', badge: 'Cheese Melt', icon: img('moza-chicken.jpg'), hasOptions: false, price: 95, nasiPrice: [100, 95], sambalSlots: 1, portions: 1 },
 
             // TAMBAHAN (add-on)
             // Menu habis? Tambahkan  soldOut: true  pada item mana pun.
             { id: 'a1', category: 'addon', name: 'Extra Nasi', desc: 'Tambahan satu porsi nasi putih.', badge: 'Tambahan', icon: '🍚', hasOptions: false, price: 15 },
-            { id: 'a2', category: 'addon', name: 'Extra Sambal', desc: 'Tambahan sambal pilihanmu.', badge: 'Tambahan', icon: '🌶️', hasOptions: true, options: [{ label: 'Manis', price: 10, icon: '🍯' }, { label: 'Merah', price: 10, icon: '🌶️' }, { label: 'Hijau', price: 10, icon: '🥬' }] },
-            { id: 'a3', category: 'addon', name: 'Saos Keju', desc: 'Tambahan saos keju gurih creamy.', badge: 'Tambahan', icon: '🧀', hasOptions: false, price: 15 },
-            { id: 'a4', category: 'addon', name: 'Salad', desc: 'Salad segar pelengkap ayam geprek.', badge: 'Tambahan', icon: '🥗', hasOptions: false, price: 15 },
-            { id: 'a5', category: 'addon', name: 'Saos Lava', desc: 'Tambahan saos lava pedas juara.', badge: 'Tambahan', icon: '🌋', hasOptions: false, price: 10 },
+            { id: 'a2', category: 'addon', name: 'Extra Sambal', desc: 'Tambahan sambal pilihanmu.', badge: 'Tambahan', icon: '🌶️', hasOptions: true, options: [{ label: 'Manis', price: 10, icon: '🍯' }, { label: 'Merah', price: 10, icon: '🌶️' }, { label: 'Hijau', price: 10, icon: '🥬' }, { label: 'Terasi', price: 15, icon: '🌶️' }] },
+            { id: 'a3', category: 'addon', name: 'Saos Keju', desc: 'Tambahan saos keju gurih creamy.', badge: 'Tambahan', icon: '🧀', hasOptions: false, price: 20 },
+            { id: 'a4', category: 'addon', name: 'Salad', desc: 'Salad segar pelengkap ayam geprek.', badge: 'Tambahan', icon: '🥗', hasOptions: false, price: 20 },
+            { id: 'a5', category: 'addon', name: 'Saos Lava', desc: 'Tambahan saos lava pedas juara.', badge: 'Tambahan', icon: '🌋', hasOptions: false, price: 15 },
 
             // MINUMAN
-            { id: 'd1', category: 'drink', name: 'Teh', desc: 'Teh manis nikmat sajian dingin atau hangat.', badge: 'Segar', icon: '🍵', hasOptions: true, options: suhu(20) },
-            { id: 'd2', category: 'drink', name: 'Jeruk', desc: 'Sajian perasan jeruk manis alami penyegar dahaga.', badge: 'Favorit', icon: '🍊', hasOptions: true, options: suhu(20) },
-            { id: 'd3', category: 'drink', name: 'Mangga', desc: 'Minuman rasa mangga buah harum khas.', badge: 'Buah Segar', icon: '🥭', hasOptions: true, options: suhu(20) },
-            { id: 'd4', category: 'drink', name: 'Lemon', desc: 'Sajian lemon segar asam manis pemulih stamina.', badge: 'Segar Asam', icon: '🍋', hasOptions: true, options: suhu(25) },
-            { id: 'd5', category: 'drink', name: 'Lemon Tea', desc: 'Perpaduan sempurna racikan teh & kesegaran lemon.', badge: 'Rekomendasi', icon: '🍹', hasOptions: true, options: suhu(25) },
-            { id: 'd6', category: 'drink', name: 'Sirup Lemon', desc: 'Olahan sirup lemon legit dan manis asam khas.', badge: 'Manis Asam', icon: '🧪', hasOptions: true, options: suhu(20) },
-            { id: 'd7', category: 'drink', name: 'Teh Susu', desc: 'Seduhan teh kental dengan campuran susu creamy manis.', badge: 'Creamy', icon: '🧋', hasOptions: true, options: suhu(25) },
-            { id: 'd8', category: 'drink', name: 'Susu', desc: 'Susu murni lezat penambah energi.', badge: 'Sehat', icon: '🥛', hasOptions: true, options: suhu(25) },
-            { id: 'd9', category: 'drink', name: 'Bandung', desc: 'Minuman khas sirup rosella susu manis nan harum.', badge: 'Khas Bandung', icon: '🌸', hasOptions: true, options: suhu(30) },
-            { id: 'd10', category: 'drink', name: 'Kopi', desc: 'Seduhan kopi nikmat penghilang kantuk.', badge: 'Kopi Hitam', icon: '☕', hasOptions: true, options: suhu(35) },
-            { id: 'd11', category: 'drink', name: 'Kukubima', desc: 'Minuman energi pembakar semangat seharian.', badge: 'Energy Drink', icon: '⚡', hasOptions: false, price: 35 },
-            { id: 'd12', category: 'drink', name: 'X-Tra Joss', desc: 'Minuman kesehatan ekstra joss penyegar tubuh.', badge: 'Laki Punya', icon: '💥', hasOptions: false, price: 35 },
-            { id: 'd13', category: 'drink', name: 'Green Tea', desc: 'Teh hijau kaya antioksidan nikmat beraroma.', badge: 'Healthy Tea', icon: '🍃', hasOptions: false, price: 35 },
-            { id: 'd14', category: 'drink', name: 'Kukubima Susu', desc: 'Kukubima dipadu gurih manisnya susu mantap.', badge: 'Energy Milk', icon: '🥛⚡', hasOptions: false, price: 40 },
-            { id: 'd15', category: 'drink', name: 'X-Tra Joss Susu', desc: 'Kombinasi ekstra joss dengan susu rasa creamy mantap.', badge: 'Favorit Pria', icon: '🥛💥', hasOptions: false, price: 40 },
-            { id: 'd16', category: 'drink', name: 'Green Tea Susu', desc: 'Teh hijau berpadu susu murni lembut dan nikmat.', badge: 'Matcha Milk', icon: '🍵🥛', hasOptions: false, price: 40 },
-            { id: 'd17', category: 'drink', name: 'Kopi Susu', desc: 'Kopi mantap disiram susu kental manis lezat.', badge: 'Kopi Creamy', icon: '☕🥛', hasOptions: false, price: 40 }
+            { id: 'd1', category: 'drink', name: 'Es Teh', desc: 'Teh manis dingin penyegar dahaga.', badge: 'Segar', icon: '🧋', hasOptions: false, price: 20 }
         ];
 
         // Global State
@@ -262,8 +238,15 @@
         let selectedAreaObj = null;
         let activeCategory = 'all';
         let customerLocation = null;
+        let selectedStyle = '';
+        let selectedPart = 'Bebas';
+        let partCounts = {};
+        let currentItem = null;
+        let styleCounts = { Geprek: 0, Krispi: 0 };
+        let activeModal = 'options';
         let selectedPayment = 'tunai';
         let sambalItem = null;
+        let sambalNasi = 'Dengan Nasi';
         let sambalCounts = { Manis: 0, Merah: 0, Hijau: 0 };
 
         // Render Menu
@@ -281,7 +264,7 @@
             }
 
             items.forEach(item => {
-                const priceDisplay = item.hasOptions
+                const priceDisplay = item.sambalSlots ? `Mulai ${item.price} L.E` : item.hasOptions
                     ? `Mulai ${Math.min(...item.options.map(o => o.price))} L.E`
                     : `${item.price} L.E`;
 
@@ -333,7 +316,7 @@
         function handleAddToCart(itemId) {
             const it = menuData.find(m => m.id === itemId);
             if (it && it.soldOut) return;
-            if (it && it.sambalPick) { openSambalModal(it); return; }
+            if (it && (it.sambalPick || it.sambalSlots)) { openSambalModal(it); return; }
             const item = menuData.find(m => m.id === itemId);
             if (!item) return;
 
@@ -347,6 +330,8 @@
         // Modal opsi
         function openOptionModal(item) {
             document.getElementById('modal-item-title').innerText = item.name;
+            activeModal = 'options';
+            selectedStyle = '';
             document.getElementById('modal-item-desc').innerText = item.category === 'drink'
                 ? 'Silakan pilih sajian Suhu (Dingin atau Hangat):'
                 : 'Silakan pilih variasi porsi pesanan:';
@@ -354,10 +339,14 @@
             const container = document.getElementById('modal-options-container');
             container.innerHTML = '';
 
+            currentItem = item;
+            selectedPart = 'Bebas';
+            if (hasStyle(item) || hasPart(item)) container.innerHTML = `<div id="style-toggle" class="space-y-3">${choiceHeaderHtml(item)}</div>`;
+
             item.options.forEach(opt => {
                 const iconOpt = opt.icon || (opt.label.includes('Dingin') ? '🧊' : (opt.label.includes('Hangat') ? '☕' : '🍚'));
                 container.innerHTML += `
-                    <button onclick="selectOptionAndAdd('${item.id}', ${opt.price}, '${opt.label}')" class="w-full p-3.5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-amber-100 text-slate-800 flex items-center justify-between transition font-bold text-xs">
+                    <button onclick="selectOptionAndAdd('${item.id}', ${opt.price}, '${opt.label}')" data-opt="1" class="${hasStyle(item) ? 'opacity-40 ' : ''}w-full p-3.5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-amber-100 text-slate-800 flex items-center justify-between transition font-bold text-xs">
                         <span>${iconOpt} ${opt.label}</span>
                         <span class="text-brand-red font-extrabold">${opt.price} L.E</span>
                     </button>`;
@@ -366,43 +355,162 @@
             document.getElementById('option-modal').classList.remove('hidden');
         }
 
+        const PART_LIST = ['Bebas', 'Dada', 'Sayap', 'Paha Atas', 'Paha Bawah'];
+
+        function sumOf(o) { return Object.values(o).reduce((a, b) => a + b, 0); }
+        function zeroCounts(keys) { return Object.fromEntries(keys.map(k => [k, 0])); }
+        function hasStyle(item) { return item.name.includes('Geprek/Krispi'); }
+        function hasPart(item) { return (item.portions || 0) > 0; }
+        function sambalSlotsOf(item) { return item.sambalPick ? item.portions : item.sambalSlots; }
+
+        function styleToggleHtml() {
+            return `<div>
+                <p class="text-[11px] font-bold text-slate-700 mb-1.5">Pilih Jenis Ayam ${selectedStyle ? '' : '<span class="text-brand-red">(wajib dipilih)</span>'}</p>
+                <div class="flex gap-2">${['Geprek', 'Krispi'].map(st => `
+                    <button onclick="setStyle('${st}')" class="flex-1 py-2.5 rounded-xl font-bold text-xs ${selectedStyle === st ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-600'}">🍗 ${st}</button>`).join('')}
+                </div>
+            </div>`;
+        }
+
+        function partToggleHtml() {
+            return `<div>
+                <p class="text-[11px] font-bold text-slate-700 mb-1.5">Pilih Bagian Ayam</p>
+                <div class="grid grid-cols-2 gap-2">${PART_LIST.map(pt => `
+                    <button onclick="setPart('${pt}')" class="${pt === 'Bebas' ? 'col-span-2 ' : ''}py-2.5 rounded-xl font-bold text-xs ${selectedPart === pt ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-600'}">${pt === 'Bebas' ? 'Bebas (yang penting besar)' : pt}</button>`).join('')}
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1.5">Dada dibatasi: 1 porsi boleh 1 dada, selanjutnya maksimal 1 dada untuk setiap 2 porsi pesanan.</p>
+            </div>`;
+        }
+
+        function choiceHeaderHtml(item) {
+            return (hasStyle(item) ? styleToggleHtml() : '') + (hasPart(item) ? partToggleHtml() : '');
+        }
+
+        function refreshModal() {
+            if (activeModal === 'sambal') {
+                renderSambalModal();
+            } else {
+                const t = document.getElementById('style-toggle');
+                if (t && currentItem) t.innerHTML = choiceHeaderHtml(currentItem);
+                dimOptions();
+            }
+        }
+        function dimOptions() {
+            const lock = currentItem && hasStyle(currentItem) && !selectedStyle;
+            document.querySelectorAll('#modal-options-container [data-opt]').forEach(b => b.classList.toggle('opacity-40', !!lock));
+        }
+        function needStyle(item) {
+            if (hasStyle(item) && !selectedStyle) {
+                alert('Pilih jenis ayam dulu ya: Geprek atau Krispi.');
+                return true;
+            }
+            return false;
+        }
+        function setStyle(st) { selectedStyle = st; refreshModal(); }
+        function setPart(pt) { selectedPart = pt; refreshModal(); }
+
+        // ----- Modal pilihan sambal (3 Sambal, Richeese/Mozarella, Combo) -----
         function openSambalModal(item) {
+            activeModal = 'sambal';
+            currentItem = item;
             sambalItem = item;
-            sambalCounts = { Manis: 0, Merah: 0, Hijau: 0 };
+            selectedStyle = '';
+            selectedPart = 'Bebas';
+            sambalNasi = 'Dengan Nasi';
+            sambalCounts = zeroCounts(SAMBAL_CHOICES);
+            styleCounts = { Geprek: 0, Krispi: 0 };
+            partCounts = zeroCounts(PART_LIST);
+            const n = sambalSlotsOf(item);
             document.getElementById('modal-item-title').innerText = item.name;
-            document.getElementById('modal-item-desc').innerText = `Pilih ${item.portions} sambal (manis, merah, hijau) sesuai selera:`;
+            document.getElementById('modal-item-desc').innerText = item.sambalPick
+                ? `Pilih ${n} jenis ayam, ${n} bagian ayam, dan ${n} sambal sesuai selera:`
+                : `Pilih ${n} sambal.${TERASI_EXTRA > 0 ? ` Sambal Terasi +${TERASI_EXTRA} L.E per pilihan.` : ''}`;
             renderSambalModal();
             document.getElementById('option-modal').classList.remove('hidden');
         }
 
-        function renderSambalModal() {
-            const total = Object.values(sambalCounts).reduce((a, b) => a + b, 0);
-            const need = sambalItem.portions;
-            const ok = total === need;
-            const rows = Object.keys(sambalCounts).map(k => `
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                    <span class="text-xs font-bold">Sambal ${k}</span>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="changeSambal('${k}', -1)" class="w-7 h-7 bg-slate-200 rounded-lg font-bold text-xs">-</button>
-                        <span class="text-xs font-bold w-5 text-center">${sambalCounts[k]}</span>
-                        <button onclick="changeSambal('${k}', 1)" class="w-7 h-7 bg-brand-red text-white rounded-lg font-bold text-xs">+</button>
-                    </div>
-                </div>`).join('');
-            document.getElementById('modal-options-container').innerHTML = rows + `
-                <p class="text-[11px] text-slate-500 text-center">Terpilih ${total} dari ${need}</p>
-                <button ${ok ? '' : 'disabled'} onclick="confirmSambal()" class="w-full py-3 rounded-2xl font-bold text-xs text-white ${ok ? 'bg-brand-red' : 'bg-slate-300 cursor-not-allowed'}">Tambah ke Keranjang</button>`;
+        function sambalPrice() {
+            if (sambalItem.sambalPick) return sambalItem.price;
+            const base = sambalNasi === 'Dengan Nasi' ? sambalItem.nasiPrice[0] : sambalItem.nasiPrice[1];
+            return base + (sambalCounts.Terasi || 0) * TERASI_EXTRA;
         }
 
-        function changeSambal(k, d) {
-            const total = Object.values(sambalCounts).reduce((a, b) => a + b, 0);
-            if (d > 0 && total >= sambalItem.portions) return;
-            sambalCounts[k] = Math.max(0, sambalCounts[k] + d);
+        function setSambalNasi(n) {
+            sambalNasi = n;
+            renderSambalModal();
+        }
+
+        function stepLabel(key, k) {
+            if (key === 'style') return `Ayam ${k}`;
+            if (key === 'part') return k === 'Bebas' ? 'Bebas (yang penting besar)' : k;
+            return `Sambal ${k}${k === 'Terasi' && TERASI_EXTRA > 0 ? ` (+${TERASI_EXTRA} L.E)` : ''}`;
+        }
+
+        function stepGroup(title, counts, key, need) {
+            return `<p class="text-[11px] font-bold text-slate-700 pt-1">${title} <span class="font-semibold text-slate-400">(terpilih ${sumOf(counts)} dari ${need})</span></p>` +
+                Object.keys(counts).map(k => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <span class="text-xs font-bold">${stepLabel(key, k)}</span>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="changeCount('${key}', '${k}', -1)" class="w-7 h-7 bg-slate-200 rounded-lg font-bold text-xs">-</button>
+                        <span class="text-xs font-bold w-5 text-center">${counts[k]}</span>
+                        <button onclick="changeCount('${key}', '${k}', 1)" class="w-7 h-7 bg-brand-red text-white rounded-lg font-bold text-xs">+</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderSambalModal() {
+            const item = sambalItem;
+            const combo = !!item.sambalPick;
+            const need = sambalSlotsOf(item);
+            let ok = sumOf(sambalCounts) === need;
+            let html = '';
+            if (combo) {
+                ok = ok && sumOf(styleCounts) === need && sumOf(partCounts) === need;
+                html += stepGroup('Jenis Ayam', styleCounts, 'style', need);
+                html += stepGroup('Bagian Ayam', partCounts, 'part', need);
+                html += `<p class="text-[10px] text-slate-400">Dada dibatasi: 1 porsi boleh 1 dada, selanjutnya maksimal 1 dada untuk setiap 2 porsi pesanan.</p>`;
+            } else {
+                ok = ok && (!hasStyle(item) || !!selectedStyle);
+                html += `<div class="space-y-3">${choiceHeaderHtml(item)}</div>`;
+                html += `<div class="flex gap-2">${['Dengan Nasi', 'Tanpa Nasi'].map(n => `
+                    <button onclick="setSambalNasi('${n}')" class="flex-1 py-2.5 rounded-xl font-bold text-xs ${sambalNasi === n ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-600'}">${n === 'Dengan Nasi' ? '🍚' : '🍗'} ${n}</button>`).join('')}</div>`;
+            }
+            html += stepGroup('Sambal', sambalCounts, 'sambal', need);
+            html += `<button ${ok ? '' : 'disabled'} onclick="confirmSambal()" class="w-full py-3 rounded-2xl font-bold text-xs text-white ${ok ? 'bg-brand-red' : 'bg-slate-300 cursor-not-allowed'}">Tambah ke Keranjang${combo ? '' : ' • ' + sambalPrice() + ' L.E'}</button>`;
+            const c = document.getElementById('modal-options-container');
+            const top = c.scrollTop;
+            c.innerHTML = html;
+            c.scrollTop = top;
+        }
+
+        function changeCount(key, k, d) {
+            const counts = key === 'style' ? styleCounts : key === 'part' ? partCounts : sambalCounts;
+            const need = sambalSlotsOf(sambalItem);
+            if (d > 0 && need === 1) {
+                Object.keys(counts).forEach(x => counts[x] = 0);
+                counts[k] = 1;
+            } else if (d > 0 && sumOf(counts) >= need) {
+                return;
+            } else {
+                counts[k] = Math.max(0, counts[k] + d);
+            }
             renderSambalModal();
         }
 
         function confirmSambal() {
-            const label = Object.entries(sambalCounts).filter(([, n]) => n > 0).map(([k, n]) => `${n} ${k}`).join(', ');
-            addToCart(sambalItem, sambalItem.price, `Sambal: ${label}`);
+            const need = sambalSlotsOf(sambalItem);
+            const fmt = o => Object.entries(o).filter(([, n]) => n > 0)
+                .map(([k, n]) => need === 1 ? k : `${n} ${k}`).join(', ');
+            if (sambalItem.sambalPick) {
+                addToCart(sambalItem, sambalPrice(),
+                    `Ayam: ${fmt(styleCounts)} • Bagian: ${fmt(partCounts)} • Sambal: ${fmt(sambalCounts)}`,
+                    partCounts.Dada);
+            } else {
+                addToCart(sambalItem, sambalPrice(),
+                    `${sambalNasi} • Bagian: ${selectedPart} • Sambal: ${fmt(sambalCounts)}`,
+                    selectedPart === 'Dada' ? 1 : 0);
+            }
             closeOptionModal();
         }
 
@@ -413,12 +521,16 @@
         function selectOptionAndAdd(itemId, price, optionLabel) {
             const item = menuData.find(m => m.id === itemId);
             if (!item) return;
-            addToCart(item, price, optionLabel);
+            if (needStyle(item)) return;
+            const part = hasPart(item) ? selectedPart : null;
+            addToCart(item, price, part ? `${optionLabel} • Bagian: ${part}` : optionLabel, part === 'Dada' ? 1 : 0);
             closeOptionModal();
         }
 
-        function addToCart(item, price, optionLabel) {
-            const cartItemKey = `${item.name} (${optionLabel})`;
+        function addToCart(item, price, optionLabel, dada = 0) {
+            if (needStyle(item)) return;
+            const itemName = hasStyle(item) ? item.name.replace('Geprek/Krispi', selectedStyle) : item.name;
+            const cartItemKey = `${itemName} (${optionLabel})`;
             const existing = cart.find(i => i.key === cartItemKey);
 
             if (existing) {
@@ -426,10 +538,11 @@
             } else {
                 cart.push({
                     key: cartItemKey,
-                    name: item.name,
+                    name: itemName,
                     option: optionLabel,
                     price: price,
                     portions: item.portions || 0,
+                    dada: dada,
                     qty: 1
                 });
             }
@@ -632,6 +745,12 @@
                 return;
             }
 
+            const ds = dadaStatus();
+            if (ds.over) {
+                alert(`Request dada melebihi batas. Untuk ${ds.porsi} porsi, maksimal ${ds.max} dada (saat ini ${ds.dada}). Kurangi dada atau tambah porsi.`);
+                return;
+            }
+
             const name = document.getElementById('cust-name').value.trim();
             const detailInput = document.getElementById('cust-detail');
             const detail = detailInput ? detailInput.value.trim() : '';
@@ -681,7 +800,7 @@
             const garis = '----------------------------------';
             const t = cairoNow();
             const noPesanan = `#${t.dd}${t.mm}-${t.hh}${t.mi}`;
-            let text = `*PESANAN BARU - GEPREK ASYIR*\n`;
+            let text = `*PESANAN BARU - GEPREK SABI*\n`;
             text += `*No. Pesanan:* ${noPesanan} (jam ${t.hh}:${t.mi} Cairo)\n`;
             text += `${garis}\n`;
             text += `*Tipe Pemesanan:* ${typeTitle}\n`;
@@ -730,6 +849,14 @@
             return selectedPayment === 'tunai' ? '' :
                 `<small class="block text-[10px] text-slate-400 font-semibold text-right">≈ ${formatIDR(le)}</small>`;
         }
+        function copyRekening(btn) {
+            const done = () => { btn.innerText = 'Tersalin ✓'; };
+            try {
+                navigator.clipboard.writeText(REKENING.nomor).then(done, () => prompt('Salin nomor rekening:', REKENING.nomor));
+            } catch (e) {
+                prompt('Salin nomor rekening:', REKENING.nomor);
+            }
+        }
         function setPayment(m) {
             selectedPayment = m;
             document.querySelectorAll('.pay-btn').forEach(b => {
@@ -739,13 +866,25 @@
             const a = document.getElementById(`btn-pay-${m}`);
             a.classList.remove('border', 'border-slate-200', 'bg-white', 'text-slate-600');
             a.classList.add('bg-brand-red', 'text-white');
-            document.getElementById('pay-note').innerText = m === 'tunai'
-                ? 'Bayar tunai dalam L.E.'
-                : `Dibayar dalam Rupiah (kurs 2,7 L.E = Rp 1.000). Detail pembayaran dikirim via WhatsApp.`;
+            const note = document.getElementById('pay-note');
+            const kurs = `Dibayar dalam Rupiah (kurs 2,7 L.E = Rp 1.000).`;
+            if (m === 'tunai') {
+                note.innerText = 'Bayar tunai dalam L.E.';
+            } else if (m === 'transfer') {
+                note.innerHTML = `${kurs}<br>Transfer ke: <b class="text-slate-700">${REKENING.bank} ${REKENING.nomor}</b> a.n ${REKENING.nama} <button type="button" onclick="copyRekening(this)" class="ml-1 underline text-brand-red font-bold">Salin nomor</button><br>Kirim bukti transfer lewat WhatsApp.`;
+            } else {
+                note.innerText = `${kurs} Detail QRIS dikirim via WhatsApp.`;
+            }
             updateCartUI();
         }
 
         // ----- Petunjuk minimal porsi + simpan keranjang -----
+        function dadaStatus() {
+            const dada = cart.reduce((sum, i) => sum + (i.dada || 0) * i.qty, 0);
+            const porsi = totalPortions();
+            const max = porsi > 0 ? Math.max(1, Math.floor(porsi / 2)) : 0;
+            return { dada, porsi, max, over: dada > max };
+        }
         function totalPortions() {
             return cart.reduce((s, i) => s + i.portions * i.qty, 0);
         }
@@ -759,6 +898,14 @@
                 hint.classList.remove('hidden');
             } else {
                 hint.classList.add('hidden');
+            }
+            const ds = dadaStatus();
+            const dh = document.getElementById('dada-hint');
+            if (ds.over) {
+                dh.innerText = `Request dada: ${ds.dada}, sedangkan untuk ${ds.porsi} porsi maksimal ${ds.max} dada. Kurangi dada atau tambah porsi.`;
+                dh.classList.remove('hidden');
+            } else {
+                dh.classList.add('hidden');
             }
             saveCart();
         }
