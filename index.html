@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEPREK SABI - Jagonya Ayam Geprek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/arco');
+        .font-arco { font-family: 'ARCO', sans-serif; }
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f6e7cb; }
+        ::-webkit-scrollbar-thumb { background: #edb66d; border-radius: 10px; }
+
+        .bg-cream-warm { background-color: #f6e7cb; }
+        .bg-cream-card { background-color: #fdf8f0; }
+        .bg-brand-red { background-color: #c90106; }
+        .bg-brand-darkred { background-color: #8b050b; }
+        .text-brand-darkred { color: #8b050b; }
+        .text-brand-red { color: #c90106; }
+        .badge-style { background-color: #edb66d; color: #8b050b; }
+        .tab-pill-active {
+            background-color: #c90106 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(201, 1, 6, 0.25);
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-cream-warm font-montserrat min-h-screen flex flex-col text-slate-800 antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm sticky top-0 z-30 border-b border-amber-100">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="Logo.png" alt="Geprek Sabi Logo" class="w-11 h-11 object-contain" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
+                <div>
+                    <h1 class="font-arco text-xl text-brand-darkred leading-tight tracking-wide">GEPREK SABI</h1>
+                    <p class="text-[10px] font-bold text-brand-red tracking-wider">JAGONYA AYAM GEPREK</p>
+                </div>
+            </div>
+            <button onclick="toggleCart(true)" class="relative bg-brand-red hover:bg-red-700 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold text-xs sm:text-sm shadow-sm transition flex items-center space-x-2">
+                <span>🛍️</span>
+                <span class="font-bold">Keranjang</span>
+                <span id="cart-badge" class="bg-amber-400 text-brand-darkred text-xs w-5 h-5 rounded-full flex items-center justify-center font-extrabold ml-1">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="bg-gradient-to-r from-[#8b050b] to-[#c90106] text-white py-10 px-4 text-center shadow-inner relative overflow-hidden">
+        <div class="max-w-3xl mx-auto relative z-10">
+            <span class="bg-amber-400/20 text-amber-200 border border-amber-300/30 text-[11px] font-bold px-3 py-1 rounded-full inline-block mb-3 backdrop-blur-sm">
+                <span id="open-status">Memeriksa jam buka...</span> • Pemesanan Praktis via WA
+            </span>
+            <h2 class="font-arco text-2xl sm:text-4xl leading-tight tracking-wide mb-2 text-amber-100">SELAMAT DATANG SAHABAT GEPREK!</h2>
+            <p class="text-xs sm:text-sm text-amber-100/90 max-w-xl mx-auto font-medium">Pilih menu makanan & minuman favorit anda!</p>
+        </div>
+    </section>
+
+    <!-- MAIN -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-grow w-full">
+        <div class="max-w-md mx-auto mb-6">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">🔍</span>
+                <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Cari geprek atau minuman..." class="w-full pl-10 pr-4 py-2.5 bg-white text-xs sm:text-sm rounded-full border border-amber-200 shadow-sm focus:outline-none focus:border-brand-red transition">
+            </div>
+        </div>
+
+        <div class="flex items-center justify-start sm:justify-center space-x-2.5 overflow-x-auto pb-4 mb-6 scrollbar-none" id="category-tabs">
+            <button onclick="filterCategory('all', this)" class="tab-btn tab-pill-active bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Semua</button>
+            <button onclick="filterCategory('basic', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Basic Menu</button>
+            <button onclick="filterCategory('special', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Special Menu</button>
+            <button onclick="filterCategory('drink', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">🥤 Minuman</button>
+            <button onclick="filterCategory('addon', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">➕ Tambahan</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-container"></div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white text-slate-500 py-6 text-center text-xs border-t border-amber-100 mt-12">
+        <p class="font-bold text-brand-darkred text-sm">GEPREK SABI — Jagonya Ayam Geprek</p>
+        <p class="mt-2">🕘 Jam buka 09:00 – 21:00 (waktu Kairo)</p>
+        <div id="footer-links" class="mt-3 flex items-center justify-center flex-wrap gap-3 font-semibold"></div>
+        <p class="mt-3 opacity-70">&copy; 2026 GEPREK SABI. All Rights Reserved.</p>
+    </footer>
+
+    <!-- MODAL OPSI -->
+    <div id="option-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative">
+            <button onclick="closeOptionModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+            <h3 id="modal-item-title" class="text-lg font-bold text-slate-800 pr-6">Pilih Opsi Menu</h3>
+            <p id="modal-item-desc" class="text-xs text-slate-400 mt-1">Silakan pilih variasi paket untuk pesanan ini:</p>
+            <div class="mt-5 space-y-3 max-h-[60vh] overflow-y-auto" id="modal-options-container"></div>
+        </div>
+    </div>
+
+    <!-- CART DRAWER -->
+    <div id="cart-drawer-overlay" onclick="toggleCart(false)" class="fixed inset-0 bg-black/40 z-40 hidden transition-opacity"></div>
+
+    <div id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="bg-brand-darkred text-white p-5 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl">🛍️</span>
+                <h2 class="font-bold text-base">Keranjang Pesanan</h2>
+            </div>
+            <button onclick="toggleCart(false)" class="text-white hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center font-bold">✕</button>
+        </div>
+
+        <div class="flex-grow overflow-y-auto p-5 space-y-3" id="cart-items-container"></div>
+
+        <div class="p-5 bg-slate-50 border-t border-slate-200 space-y-4 max-h-[60vh] overflow-y-auto">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Tipe Pemesanan *</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setOrderType('dine-in')" id="btn-type-dine-in" class="order-type-btn bg-brand-red text-white font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">🍽️ Dine In</button>
+                    <button type="button" onclick="setOrderType('tausil')" id="btn-type-tausil" class="order-type-btn border border-slate-200 bg-white text-slate-600 font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">🛵 Tausil</button>
+                    <button type="button" onclick="setOrderType('takeaway')" id="btn-type-takeaway" class="order-type-btn border border-slate-200 bg-white text-slate-600 font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">🛍️ Take Away</button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700">Nama Pemesan *</label>
+                    <input type="text" id="cust-name" oninput="saveCustomer()" placeholder="Masukkan nama Anda" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
+                </div>
+
+                <div id="dynamic-field-container">
+                    <label class="block text-[11px] font-bold text-slate-700">Nomor Meja *</label>
+                    <input type="text" id="cust-detail" placeholder="Contoh: Meja 05" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700">Catatan Tambahan (Opsional)</label>
+                    <input type="text" id="cust-note" placeholder="Contoh: Sambal dipisah / Es batu sedikit" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
+                </div>
+            </div>
+
+            <div>
+                <div id="min-hint" class="hidden mb-3 text-[11px] font-bold text-amber-800 bg-amber-100 border border-amber-200 rounded-xl p-2.5"></div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Metode Pembayaran *</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setPayment('tunai')" id="btn-pay-tunai" class="pay-btn bg-brand-red text-white font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">💵 Tunai</button>
+                    <button type="button" onclick="setPayment('transfer')" id="btn-pay-transfer" class="pay-btn border border-slate-200 bg-white text-slate-600 font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">🏦 Transfer</button>
+                    <button type="button" onclick="setPayment('qris')" id="btn-pay-qris" class="pay-btn border border-slate-200 bg-white text-slate-600 font-bold text-xs py-2.5 rounded-xl text-center shadow-sm">📲 QRIS</button>
+                </div>
+                <p id="pay-note" class="text-[10px] text-slate-400 mt-1.5">Bayar tunai dalam L.E.</p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200 space-y-1">
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span>Subtotal Makanan & Minuman:</span>
+                    <span id="cart-subtotal" class="font-bold text-slate-700">0 L.E</span>
+                </div>
+                <div id="delivery-fee-row" class="flex items-center justify-between text-xs text-slate-500 hidden">
+                    <span>Ongkos Kirim (Tausil):</span>
+                    <span id="delivery-fee-display" class="font-bold text-brand-red">0 L.E</span>
+                </div>
+                <div class="flex items-center justify-between pt-2">
+                    <span class="text-xs font-bold text-slate-800">Total Pembayaran:</span>
+                    <span id="cart-total-price" class="text-xl font-extrabold text-brand-red">0 L.E</span>
+                </div>
+            </div>
+
+            <button id="btn-checkout" onclick="checkoutWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition flex items-center justify-center space-x-2">
+                <span>📱</span>
+                <span id="checkout-label">Kirim Pesanan ke WhatsApp</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const nomorWA = "6282233042361";
+
+        // ===== PENGATURAN (silakan ubah) =====
+        const BUKA_JAM = 9, TUTUP_JAM = 21;      // jam operasional, waktu Kairo
+        const LE_PER_1000_IDR = 2.7;             // kurs: 2,7 L.E = Rp 1.000 (100 L.E = Rp 37.000)
+        const LINK_MAPS = "";                    // isi link Google Maps setelah lokasi muncul di Google Maps
+        const LINK_IG = "https://instagram.com/geprek_sabi";
+        const LINK_TIKTOK = "";                  // belum ada
+        const CART_KEY = 'sabi_cart_v1', CUST_KEY = 'sabi_cust_v1';
+        const TERASI_EXTRA = 5;                  // tambahan harga per pilihan sambal terasi (L.E)
+
+        // Tarif ongkir (Tausil). minItems = minimal PORSI MAKANAN (minuman tidak dihitung)
+        const deliveryRates = [
+            { id: 'awal', name: 'Awwal Sabi', fee: 5, minItems: 1 },
+            { id: 'akhir', name: 'Akhir Sabi', fee: 5, minItems: 1 }
+        ];
+
+        // Helper untuk menyingkat data menu
+        const img = f => `<img src="${f}" loading="lazy" decoding="async" class="w-full h-full object-cover rounded-2xl">`;
+        const nasi = (dengan, tanpa) => [
+            { label: 'Dengan Nasi', price: dengan },
+            { label: 'Tanpa Nasi', price: tanpa }
+        ];
+        const suhu = p => [
+            { label: 'Dingin', price: p },
+            { label: 'Hangat', price: p }
+        ];
+
+        // portions = jumlah porsi makanan (untuk syarat minimal pesanan Tausil). Minuman = 0.
+        const menuData = [
+            // BASIC MENU
+            { id: 'b2', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Hijau', desc: 'Ayam geprek berpadu sambal ijo gurih dan segar menggugah selera.', badge: 'Pedes Seger', icon: img('hijau-chicken.jpg'), hasOptions: true, options: nasi(80, 75), portions: 1 },
+            { id: 'b1', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Merah', desc: 'Ayam krispi renyah berpadu dengan sambal cabai merah asli yang pedas mantap.', badge: 'Terlaris', icon: img('merah-chicken.jpg'), hasOptions: true, options: nasi(80, 75), portions: 1 },
+            { id: 'b3', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Manis', desc: 'Ayam gurih krispi dipadu sambal manis khas Geprek Sabi.', badge: 'Favoritoo', icon: img('manis-chicken.jpg'), hasOptions: true, options: nasi(80, 75), portions: 1 },
+            { id: 'b4', category: 'basic', name: 'Ayam Geprek/Krispi Sambal Terasi', desc: 'Ayam krispi dengan sambal terasi yang gurih, harum, dan pedas menggoda.', badge: 'Aroma Terasi', icon: '🌶️', hasOptions: true, options: nasi(85, 80), portions: 1 },
+
+            // SPECIAL MENU
+            // sambalSlots = jumlah sambal yang dipilih; nasiPrice = [dengan nasi, tanpa nasi]; terasi +TERASI_EXTRA per pilihan
+            { id: 's1', category: 'special', name: 'Ayam Geprek/Krispi Fire Chicken', desc: 'Ayam krispi dibaluri saos lava yang juara.', badge: 'Lava Lover Choice', icon: img('fire-chicken.jpg'), hasOptions: true, options: nasi(100, 95), portions: 1 },
+            { id: 's2', category: 'special', name: 'Ayam Geprek/Krispi Richeese', desc: 'Saus keju gurih creamy lezat. Pilih sambal merah, manis, atau hijau (terasi +5 L.E).', badge: 'Rekomendasi', icon: img('richeese-chicken.jpg'), hasOptions: false, price: 95, nasiPrice: [100, 95], sambalSlots: 1, portions: 1 },
+            { id: 's4', category: 'special', name: 'Ayam Geprek/Krispi 3 Sambal', desc: 'Sensasi 3 rasa sambal dalam satu porsi. Pilih 3 sambal (terasi +5 L.E per pilihan).', badge: 'Best Combination', icon: img('3sambal-chicken.jpg'), hasOptions: false, price: 90, nasiPrice: [95, 90], sambalSlots: 3, portions: 1 },
+            { id: 's3', category: 'special', name: 'Ayam Geprek/Krispi Mozarella', desc: 'Keju mozarella mulur meleleh. Pilih sambal merah, manis, atau hijau (terasi +5 L.E).', badge: 'Cheese Melt', icon: img('moza-chicken.jpg'), hasOptions: false, price: 95, nasiPrice: [100, 95], sambalSlots: 1, portions: 1 },
+
+            // TAMBAHAN (add-on)
+            // Menu habis? Tambahkan  soldOut: true  pada item mana pun.
+            { id: 'a1', category: 'addon', name: 'Extra Nasi', desc: 'Tambahan satu porsi nasi putih.', badge: 'Tambahan', icon: '🍚', hasOptions: false, price: 15 },
+            { id: 'a2', category: 'addon', name: 'Extra Sambal', desc: 'Tambahan sambal pilihanmu.', badge: 'Tambahan', icon: '🌶️', hasOptions: true, options: [{ label: 'Manis', price: 10, icon: '🍯' }, { label: 'Merah', price: 10, icon: '🌶️' }, { label: 'Hijau', price: 10, icon: '🥬' }, { label: 'Terasi', price: 15, icon: '🌶️' }] },
+            { id: 'a3', category: 'addon', name: 'Saos Keju', desc: 'Tambahan saos keju gurih creamy.', badge: 'Tambahan', icon: '🧀', hasOptions: false, price: 20 },
+            { id: 'a4', category: 'addon', name: 'Salad', desc: 'Salad segar pelengkap ayam geprek.', badge: 'Tambahan', icon: '🥗', hasOptions: false, price: 20 },
+            { id: 'a5', category: 'addon', name: 'Saos Lava', desc: 'Tambahan saos lava pedas juara.', badge: 'Tambahan', icon: '🌋', hasOptions: false, price: 15 },
+
+            // MINUMAN
+            { id: 'd1', category: 'drink', name: 'Es Teh', desc: 'Teh manis dingin penyegar dahaga.', badge: 'Segar', icon: '🧋', hasOptions: false, price: 20 }
+        ];
+
+        // Global State
+        let cart = [];
+        let selectedOrderType = 'dine-in';
+        let currentDeliveryFee = 0;
+        let selectedAreaObj = null;
+        let activeCategory = 'all';
+        let customerLocation = null;
+        let selectedPayment = 'tunai';
+        let sambalItem = null;
+        let sambalNasi = 'Dengan Nasi';
+        let sambalCounts = { Manis: 0, Merah: 0, Hijau: 0 };
+
+        // Render Menu
+        function renderMenu(items) {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-slate-400">
+                        <span class="text-4xl block mb-2">🔍</span>
+                        <p class="text-xs font-semibold">Menu yang Anda cari tidak ditemukan.</p>
+                    </div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const priceDisplay = item.sambalSlots ? `Mulai ${item.price} L.E` : item.hasOptions
+                    ? `Mulai ${Math.min(...item.options.map(o => o.price))} L.E`
+                    : `${item.price} L.E`;
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-3xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="h-44 bg-cream-card rounded-2xl flex items-center justify-center text-6xl mb-4 relative overflow-hidden">
+                                <span class="w-full h-full flex items-center justify-center">${item.icon}</span>
+                                <span class="absolute top-3 right-3 text-brand-darkred text-[11px] font-bold px-3 py-1 rounded-full badge-style shadow-sm z-10">${item.badge}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-base leading-snug">${item.name}</h3>
+                            <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">${item.desc}</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-6 pt-2">
+                            <span class="font-bold text-brand-red text-base sm:text-lg">${priceDisplay}</span>
+                            <button ${item.soldOut ? 'disabled' : ''} onclick="handleAddToCart('${item.id}')" class="${item.soldOut ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-orange-50 hover:bg-orange-100 text-brand-red'} px-4 py-2 rounded-full font-bold text-xs transition flex items-center space-x-1">
+                                <span>${item.soldOut ? 'Habis' : '+ Tambah'}</span>
+                            </button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // Pencarian
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const baseList = activeCategory === 'all'
+                ? menuData
+                : menuData.filter(item => item.category === activeCategory);
+
+            renderMenu(query === ''
+                ? baseList
+                : baseList.filter(item =>
+                    item.name.toLowerCase().includes(query) ||
+                    item.desc.toLowerCase().includes(query)));
+        }
+
+        // Filter kategori
+        function filterCategory(cat, btnEl) {
+            activeCategory = cat;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-pill-active'));
+            if (btnEl) btnEl.classList.add('tab-pill-active');
+
+            document.getElementById('search-input').value = '';
+            renderMenu(cat === 'all' ? menuData : menuData.filter(item => item.category === cat));
+        }
+
+        // Tambah ke keranjang
+        function handleAddToCart(itemId) {
+            const it = menuData.find(m => m.id === itemId);
+            if (it && it.soldOut) return;
+            if (it && it.sambalSlots) { openSambalModal(it); return; }
+            const item = menuData.find(m => m.id === itemId);
+            if (!item) return;
+
+            if (item.hasOptions) {
+                openOptionModal(item);
+            } else {
+                addToCart(item, item.price, 'Standar');
+            }
+        }
+
+        // Modal opsi
+        function openOptionModal(item) {
+            document.getElementById('modal-item-title').innerText = item.name;
+            document.getElementById('modal-item-desc').innerText = item.category === 'drink'
+                ? 'Silakan pilih sajian Suhu (Dingin atau Hangat):'
+                : 'Silakan pilih variasi porsi pesanan:';
+
+            const container = document.getElementById('modal-options-container');
+            container.innerHTML = '';
+
+            item.options.forEach(opt => {
+                const iconOpt = opt.icon || (opt.label.includes('Dingin') ? '🧊' : (opt.label.includes('Hangat') ? '☕' : '🍚'));
+                container.innerHTML += `
+                    <button onclick="selectOptionAndAdd('${item.id}', ${opt.price}, '${opt.label}')" class="w-full p-3.5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-amber-100 text-slate-800 flex items-center justify-between transition font-bold text-xs">
+                        <span>${iconOpt} ${opt.label}</span>
+                        <span class="text-brand-red font-extrabold">${opt.price} L.E</span>
+                    </button>`;
+            });
+
+            document.getElementById('option-modal').classList.remove('hidden');
+        }
+
+        function openSambalModal(item) {
+            sambalItem = item;
+            sambalNasi = 'Dengan Nasi';
+            sambalCounts = { Merah: 0, Manis: 0, Hijau: 0, Terasi: 0 };
+            document.getElementById('modal-item-title').innerText = item.name;
+            document.getElementById('modal-item-desc').innerText = `Pilih ${item.sambalSlots} sambal. Sambal Terasi +${TERASI_EXTRA} L.E per pilihan.`;
+            renderSambalModal();
+            document.getElementById('option-modal').classList.remove('hidden');
+        }
+
+        function sambalPrice() {
+            const base = sambalNasi === 'Dengan Nasi' ? sambalItem.nasiPrice[0] : sambalItem.nasiPrice[1];
+            return base + sambalCounts.Terasi * TERASI_EXTRA;
+        }
+
+        function setSambalNasi(n) {
+            sambalNasi = n;
+            renderSambalModal();
+        }
+
+        function renderSambalModal() {
+            const total = Object.values(sambalCounts).reduce((a, b) => a + b, 0);
+            const need = sambalItem.sambalSlots;
+            const ok = total === need;
+            const nasiBtns = ['Dengan Nasi', 'Tanpa Nasi'].map(n => `
+                <button onclick="setSambalNasi('${n}')" class="flex-1 py-2.5 rounded-xl font-bold text-xs ${sambalNasi === n ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-600'}">${n === 'Dengan Nasi' ? '🍚' : '🍗'} ${n}</button>`).join('');
+            const rows = Object.keys(sambalCounts).map(k => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <span class="text-xs font-bold">Sambal ${k}${k === 'Terasi' ? ` (+${TERASI_EXTRA} L.E)` : ''}</span>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="changeSambal('${k}', -1)" class="w-7 h-7 bg-slate-200 rounded-lg font-bold text-xs">-</button>
+                        <span class="text-xs font-bold w-5 text-center">${sambalCounts[k]}</span>
+                        <button onclick="changeSambal('${k}', 1)" class="w-7 h-7 bg-brand-red text-white rounded-lg font-bold text-xs">+</button>
+                    </div>
+                </div>`).join('');
+            document.getElementById('modal-options-container').innerHTML = `<div class="flex gap-2">${nasiBtns}</div>` + rows + `
+                <p class="text-[11px] text-slate-500 text-center">Sambal terpilih ${total} dari ${need}</p>
+                <button ${ok ? '' : 'disabled'} onclick="confirmSambal()" class="w-full py-3 rounded-2xl font-bold text-xs text-white ${ok ? 'bg-brand-red' : 'bg-slate-300 cursor-not-allowed'}">Tambah ke Keranjang • ${sambalPrice()} L.E</button>`;
+        }
+
+        function changeSambal(k, d) {
+            const need = sambalItem.sambalSlots;
+            const total = Object.values(sambalCounts).reduce((a, b) => a + b, 0);
+            if (d > 0 && need === 1) {
+                Object.keys(sambalCounts).forEach(x => sambalCounts[x] = 0);
+                sambalCounts[k] = 1;
+            } else if (d > 0 && total >= need) {
+                return;
+            } else {
+                sambalCounts[k] = Math.max(0, sambalCounts[k] + d);
+            }
+            renderSambalModal();
+        }
+
+        function confirmSambal() {
+            const need = sambalItem.sambalSlots;
+            const label = Object.entries(sambalCounts).filter(([, n]) => n > 0)
+                .map(([k, n]) => need === 1 ? k : `${n} ${k}`).join(', ');
+            addToCart(sambalItem, sambalPrice(), `${sambalNasi} • Sambal: ${label}`);
+            closeOptionModal();
+        }
+
+        function closeOptionModal() {
+            document.getElementById('option-modal').classList.add('hidden');
+        }
+
+        function selectOptionAndAdd(itemId, price, optionLabel) {
+            const item = menuData.find(m => m.id === itemId);
+            if (!item) return;
+            addToCart(item, price, optionLabel);
+            closeOptionModal();
+        }
+
+        function addToCart(item, price, optionLabel) {
+            const cartItemKey = `${item.name} (${optionLabel})`;
+            const existing = cart.find(i => i.key === cartItemKey);
+
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({
+                    key: cartItemKey,
+                    name: item.name,
+                    option: optionLabel,
+                    price: price,
+                    portions: item.portions || 0,
+                    qty: 1
+                });
+            }
+
+            updateCartUI();
+            toggleCart(true);
+        }
+
+        // Update tampilan keranjang
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const feeRow = document.getElementById('delivery-fee-row');
+            container.innerHTML = '';
+
+            let totalQty = 0;
+            let subtotal = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-slate-300">
+                        <span class="text-5xl block mb-3">🛍️</span>
+                        <p class="text-xs font-semibold text-slate-400">Keranjang belanjaanmu masih kosong.</p>
+                    </div>`;
+            } else {
+                cart.forEach((item, index) => {
+                    const itemTotal = item.price * item.qty;
+                    totalQty += item.qty;
+                    subtotal += itemTotal;
+
+                    container.innerHTML += `
+                        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 flex items-center justify-between shadow-sm">
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-800">${item.name}</h4>
+                                <span class="text-[10px] text-brand-darkred bg-amber-100 px-2 py-0.5 rounded-full font-semibold inline-block mt-1">${item.option}</span>
+                                <div class="text-xs text-brand-red font-bold mt-1">${item.price} L.E x ${item.qty} = ${itemTotal} L.E</div>
+                            </div>
+                            <div class="flex items-center space-x-2 bg-white rounded-xl p-1 shadow-sm border border-slate-100">
+                                <button onclick="changeQty(${index}, -1)" class="w-6 h-6 bg-slate-100 rounded-lg font-bold text-slate-600 text-xs flex items-center justify-center">-</button>
+                                <span class="text-xs font-bold px-1">${item.qty}</span>
+                                <button onclick="changeQty(${index}, 1)" class="w-6 h-6 bg-brand-red text-white rounded-lg font-bold text-xs flex items-center justify-center">+</button>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            document.getElementById('cart-badge').innerText = totalQty;
+            document.getElementById('cart-subtotal').innerText = `${subtotal} L.E`;
+
+            const isTausil = selectedOrderType === 'tausil';
+            if (isTausil) {
+                feeRow.classList.remove('hidden');
+                document.getElementById('delivery-fee-display').innerText = `${currentDeliveryFee} L.E`;
+            } else {
+                feeRow.classList.add('hidden');
+            }
+
+            const grand = subtotal + (isTausil ? currentDeliveryFee : 0);
+            updateExtras();
+            document.getElementById('cart-total-price').innerHTML =
+                `${grand} L.E${idrLine(grand)}`;
+        }
+
+        function changeQty(index, delta) {
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function toggleCart(open) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('cart-drawer-overlay');
+            if (open) {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Ganti tipe pemesanan
+        function setOrderType(type) {
+            selectedOrderType = type;
+            customerLocation = null;
+            currentDeliveryFee = 0;
+            selectedAreaObj = null;
+
+            const container = document.getElementById('dynamic-field-container');
+
+            document.querySelectorAll('.order-type-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-red', 'text-white');
+                btn.classList.add('border', 'border-slate-200', 'bg-white', 'text-slate-600');
+            });
+
+            const activeBtn = document.getElementById(`btn-type-${type}`);
+            activeBtn.classList.remove('border', 'border-slate-200', 'bg-white', 'text-slate-600');
+            activeBtn.classList.add('bg-brand-red', 'text-white');
+
+            if (type === 'dine-in') {
+                container.innerHTML = `
+                    <label class="block text-[11px] font-bold text-slate-700">Nomor Meja *</label>
+                    <input type="text" id="cust-detail" placeholder="Contoh: Meja 05" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">`;
+            } else if (type === 'tausil') {
+                const optionsHtml = deliveryRates.map(r => {
+                    const minNote = r.minItems > 1 ? ` (Min. ${r.minItems} Porsi)` : '';
+                    return `<option value="${r.id}">${r.name} - ${r.fee} L.E${minNote}</option>`;
+                }).join('');
+
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700">Pilih Wilayah Tujuan (Ongkir) *</label>
+                            <select id="select-delivery-area" onchange="updateDeliveryFee()" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white font-semibold">
+                                <option value="">-- Pilih Wilayah --</option>
+                                ${optionsHtml}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700">Nomor Imarah *</label>
+                            <input type="text" id="cust-detail" value="${savedImarah()}" oninput="saveCustomer()" placeholder="Contoh: Imarah 12" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700">Lokasi di Google Maps (Opsional)</label>
+                            <button type="button" id="btn-share-location" onclick="shareLocation()" class="w-full text-xs font-bold p-3 border border-slate-200 rounded-xl bg-white text-slate-700 hover:bg-slate-100 transition">
+                                📍 Bagikan Lokasi Saya
+                            </button>
+                            <p id="location-status" class="text-[10px] text-slate-400 mt-1">Membantu kurir menemukan alamatmu dengan cepat.</p>
+                        </div>
+                    </div>`;
+            } else if (type === 'takeaway') {
+                container.innerHTML = `
+                    <label class="block text-[11px] font-bold text-slate-700">Estimasi Jam Pengambilan *</label>
+                    <input type="text" id="cust-detail" placeholder="Contoh: Jam 18:30 / 30 Menit Lagi" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">`;
+            }
+            updateCartUI();
+        }
+
+        // Update ongkir berdasarkan wilayah
+        function updateDeliveryFee() {
+            const select = document.getElementById('select-delivery-area');
+            const rate = deliveryRates.find(r => r.id === (select ? select.value : ''));
+
+            currentDeliveryFee = rate ? rate.fee : 0;
+            selectedAreaObj = rate || null;
+            updateCartUI();
+        }
+
+        // Bagikan lokasi (Google Maps)
+        function shareLocation() {
+            const status = document.getElementById('location-status');
+            const btn = document.getElementById('btn-share-location');
+
+            if (!navigator.geolocation) {
+                status.innerText = 'Browser kamu tidak mendukung fitur lokasi.';
+                return;
+            }
+
+            status.innerText = 'Mencari lokasi kamu...';
+            btn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    const acc = Math.round(pos.coords.accuracy);
+
+                    customerLocation = {
+                        lat: lat,
+                        lng: lng,
+                        link: `https://www.google.com/maps?q=${lat},${lng}`
+                    };
+
+                    btn.disabled = false;
+                    btn.innerText = '✅ Lokasi Tersimpan (klik untuk perbarui)';
+                    status.innerHTML = `Lokasi berhasil diambil (akurasi ±${acc} m). <a href="${customerLocation.link}" target="_blank" class="text-brand-red font-bold underline">Cek di Maps</a>`;
+                },
+                (err) => {
+                    customerLocation = null;
+                    btn.disabled = false;
+                    if (err.code === 1) {
+                        status.innerText = 'Izin lokasi ditolak. Aktifkan izin lokasi di pengaturan browser, atau isi nomor imarah saja.';
+                    } else if (err.code === 2) {
+                        status.innerText = 'Lokasi tidak tersedia. Pastikan GPS aktif.';
+                    } else {
+                        status.innerText = 'Waktu habis saat mencari lokasi. Coba lagi.';
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        // Checkout ke WhatsApp
+        function checkoutWhatsApp() {
+            if (!isOpen()) {
+                alert(`Mohon maaf, warung sedang tutup. Jam operasional 0${BUKA_JAM}:00 - ${TUTUP_JAM}:00 (waktu Kairo).`);
+                return;
+            }
+            if (cart.length === 0) {
+                alert("Keranjang Anda masih kosong. Silakan pilih menu terlebih dahulu.");
+                return;
+            }
+
+            const name = document.getElementById('cust-name').value.trim();
+            const detailInput = document.getElementById('cust-detail');
+            const detail = detailInput ? detailInput.value.trim() : '';
+            const note = document.getElementById('cust-note').value.trim();
+
+            if (!name) {
+                alert("Mohon isi Nama Pemesan terlebih dahulu.");
+                return;
+            }
+
+            // Hanya porsi makanan yang dihitung (minuman = 0)
+            const totalPortions = cart.reduce((sum, item) => sum + (item.portions * item.qty), 0);
+
+            const isTausil = selectedOrderType === 'tausil';
+            let activeDeliveryFee = 0;
+            let activeAreaName = "";
+
+            if (isTausil) {
+                const selectArea = document.getElementById('select-delivery-area');
+                if (!selectArea || !selectArea.value) {
+                    alert("Mohon pilih Wilayah Tujuan Pengiriman terlebih dahulu.");
+                    return;
+                }
+
+                const rate = deliveryRates.find(r => r.id === selectArea.value);
+                if (rate) {
+                    activeDeliveryFee = rate.fee;
+                    activeAreaName = rate.name;
+
+                    if (totalPortions < rate.minItems) {
+                        alert(`Pengiriman ke ${rate.name} membutuhkan minimal ${rate.minItems} porsi makanan (saat ini: ${totalPortions} porsi, minuman tidak dihitung). Silakan tambah menu makanan terlebih dahulu.`);
+                        return;
+                    }
+                }
+            }
+
+            if (!detail) {
+                const detailMsg = selectedOrderType === 'dine-in' ? "Nomor Meja" : (isTausil ? "Nomor Imarah" : "Estimasi Jam Pengambilan");
+                alert(`Mohon isi ${detailMsg} terlebih dahulu.`);
+                return;
+            }
+
+            const typeTitle = selectedOrderType === 'dine-in' ? "DINE IN (Makan di Tempat)" : (isTausil ? "TAUSIL (Pengiriman)" : "TAKE AWAY (Bawa Pulang)");
+            const detailLabel = selectedOrderType === 'dine-in' ? "Nomor Meja" : (isTausil ? "Nomor Imarah" : "Jam Pengambilan");
+
+            // Susun pesan (teks biasa, di-encode di akhir)
+            const garis = '----------------------------------';
+            const t = cairoNow();
+            const noPesanan = `#${t.dd}${t.mm}-${t.hh}${t.mi}`;
+            let text = `*PESANAN BARU - GEPREK SABI*\n`;
+            text += `*No. Pesanan:* ${noPesanan} (jam ${t.hh}:${t.mi} Cairo)\n`;
+            text += `${garis}\n`;
+            text += `*Tipe Pemesanan:* ${typeTitle}\n`;
+            text += `*Nama Pemesan:* ${name}\n`;
+            if (isTausil && activeAreaName) {
+                text += `*Wilayah Tausil:* ${activeAreaName}\n`;
+            }
+            text += `*${detailLabel}:* ${detail}\n`;
+            if (isTausil && customerLocation) {
+                text += `*Lokasi Google Maps:* ${customerLocation.link}\n`;
+            }
+            if (note) text += `*Catatan:* ${note}\n`;
+            text += `${garis}\n`;
+            text += `*DETAIL PESANAN:*\n`;
+
+            let subtotal = 0;
+            cart.forEach((item, idx) => {
+                const itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+                text += `${idx + 1}. ${item.name} (${item.option})\n   ${item.qty} x ${item.price} L.E = *${itemTotal} L.E*\n`;
+            });
+
+            const grandTotal = subtotal + (isTausil ? activeDeliveryFee : 0);
+
+            text += `${garis}\n`;
+            text += `*Subtotal Makanan & Minuman:* ${subtotal} L.E\n`;
+            if (isTausil) {
+                text += `*Ongkos Kirim Tausil (${activeAreaName}):* ${activeDeliveryFee} L.E\n`;
+            }
+            text += `${garis}\n`;
+            text += `*TOTAL PEMBAYARAN: ${grandTotal} L.E*\n`;
+            text += selectedPayment === 'tunai'
+                ? `*Metode Bayar:* Tunai (L.E)\n\n`
+                : `*Metode Bayar:* ${selectedPayment === 'qris' ? 'QRIS' : 'Transfer'}\n*Nominal:* ${formatIDR(grandTotal)} (kurs 2,7 L.E = Rp 1.000)\n\n`;
+            text += `Mohon konfirmasi dan segera diproses ya, terima kasih! 🙏`;
+
+            window.open(`https://wa.me/${nomorWA}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // ----- Pembayaran & kurs -----
+        function formatIDR(le) {
+            const idr = Math.round(le * 1000 / LE_PER_1000_IDR / 1000) * 1000;
+            return 'Rp ' + idr.toLocaleString('id-ID');
+        }
+        function idrLine(le) {
+            return selectedPayment === 'tunai' ? '' :
+                `<small class="block text-[10px] text-slate-400 font-semibold text-right">≈ ${formatIDR(le)}</small>`;
+        }
+        function setPayment(m) {
+            selectedPayment = m;
+            document.querySelectorAll('.pay-btn').forEach(b => {
+                b.classList.remove('bg-brand-red', 'text-white');
+                b.classList.add('border', 'border-slate-200', 'bg-white', 'text-slate-600');
+            });
+            const a = document.getElementById(`btn-pay-${m}`);
+            a.classList.remove('border', 'border-slate-200', 'bg-white', 'text-slate-600');
+            a.classList.add('bg-brand-red', 'text-white');
+            document.getElementById('pay-note').innerText = m === 'tunai'
+                ? 'Bayar tunai dalam L.E.'
+                : `Dibayar dalam Rupiah (kurs 2,7 L.E = Rp 1.000). Detail pembayaran dikirim via WhatsApp.`;
+            updateCartUI();
+        }
+
+        // ----- Petunjuk minimal porsi + simpan keranjang -----
+        function totalPortions() {
+            return cart.reduce((s, i) => s + i.portions * i.qty, 0);
+        }
+        function updateExtras() {
+            const hint = document.getElementById('min-hint');
+            const sel = document.getElementById('select-delivery-area');
+            const rate = selectedOrderType === 'tausil' && sel ? deliveryRates.find(r => r.id === sel.value) : null;
+            const need = rate ? rate.minItems - totalPortions() : 0;
+            if (need > 0 && cart.length) {
+                hint.innerText = `Tambah ${need} porsi makanan lagi untuk bisa dikirim ke ${rate.name}`;
+                hint.classList.remove('hidden');
+            } else {
+                hint.classList.add('hidden');
+            }
+            saveCart();
+        }
+        function saveCart() {
+            try { localStorage.setItem(CART_KEY, JSON.stringify({ t: Date.now(), cart })); } catch (e) {}
+        }
+        function loadCart() {
+            try {
+                const d = JSON.parse(localStorage.getItem(CART_KEY) || 'null');
+                if (d && Array.isArray(d.cart) && Date.now() - d.t < 12 * 3600 * 1000) cart = d.cart;
+            } catch (e) {}
+        }
+        function getSavedCustomer() {
+            try { return JSON.parse(localStorage.getItem(CUST_KEY) || '{}'); } catch (e) { return {}; }
+        }
+        function saveCustomer() {
+            try {
+                const old = getSavedCustomer();
+                const im = document.getElementById('cust-detail');
+                localStorage.setItem(CUST_KEY, JSON.stringify({
+                    name: document.getElementById('cust-name').value,
+                    imarah: selectedOrderType === 'tausil' && im ? im.value : (old.imarah || '')
+                }));
+            } catch (e) {}
+        }
+        function restoreCustomer() {
+            const c = getSavedCustomer();
+            if (c.name) document.getElementById('cust-name').value = c.name;
+        }
+        function savedImarah() {
+            return (getSavedCustomer().imarah || '').replace(/"/g, '&quot;');
+        }
+
+        // ----- Jam operasional (waktu Kairo) -----
+        function cairoNow() {
+            const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Africa/Cairo', day: '2-digit', month: '2-digit',
+                hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+            }).formatToParts(new Date()).map(x => [x.type, x.value]));
+            return { dd: p.day, mm: p.month, hh: p.hour, mi: p.minute, minutes: +p.hour * 60 + +p.minute };
+        }
+        function isOpen() {
+            const m = cairoNow().minutes;
+            return m >= BUKA_JAM * 60 && m < TUTUP_JAM * 60;
+        }
+        function updateOpenStatus() {
+            const open = isOpen();
+            const buka = `0${BUKA_JAM}:00`, tutup = `${TUTUP_JAM}:00`;
+            document.getElementById('open-status').innerText = open
+                ? `🟢 Buka sekarang • sampai ${tutup}`
+                : `🔴 Tutup • buka lagi jam ${buka}`;
+            const btn = document.getElementById('btn-checkout');
+            btn.disabled = !open;
+            btn.classList.toggle('opacity-60', !open);
+            btn.classList.toggle('cursor-not-allowed', !open);
+            document.getElementById('checkout-label').innerText = open
+                ? 'Kirim Pesanan ke WhatsApp'
+                : `Warung Tutup (${buka} - ${tutup})`;
+        }
+
+        // ----- Footer -----
+        function renderFooter() {
+            const links = [];
+            if (LINK_MAPS) links.push(`<a href="${LINK_MAPS}" target="_blank" rel="noopener" class="text-brand-red hover:underline">📍 Lokasi</a>`);
+            if (LINK_IG) links.push(`<a href="${LINK_IG}" target="_blank" rel="noopener" class="text-brand-red hover:underline">📸 Instagram</a>`);
+            if (LINK_TIKTOK) links.push(`<a href="${LINK_TIKTOK}" target="_blank" rel="noopener" class="text-brand-red hover:underline">🎵 TikTok</a>`);
+            links.push(`<a href="https://wa.me/${nomorWA}" target="_blank" rel="noopener" class="text-brand-red hover:underline">💬 WhatsApp</a>`);
+            document.getElementById('footer-links').innerHTML = links.join('<span class="opacity-30">•</span>');
+        }
+
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCart();
+            restoreCustomer();
+            renderFooter();
+            updateOpenStatus();
+            setInterval(updateOpenStatus, 60000);
+            renderMenu(menuData);
+            updateCartUI();
+        });
+    </script>
+</body>
+</html>
