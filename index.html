@@ -7,6 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.cdnfonts.com/css/arco');
+        /* Tanpa zoom otomatis saat tap 2x; cubitan 2 jari tetap bisa */
+        html, body, * { touch-action: manipulation; }
+        /* Cegah iOS memperbesar layar saat mengetik di kolom isian */
+        @media (max-width: 640px) { input, select, textarea { font-size: 16px !important; } }
         .font-arco { font-family: 'ARCO', sans-serif; }
         .font-montserrat { font-family: 'Montserrat', sans-serif; }
 
@@ -76,6 +80,8 @@
             <button onclick="filterCategory('drink', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">🥤 Minuman</button>
             <button onclick="filterCategory('addon', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">➕ Tambahan</button>
         </div>
+
+        <p class="sm:hidden -mt-3 mb-4 text-center text-[10px] text-slate-400 font-semibold">↔ Geser layar ke kiri / kanan untuk pindah kategori</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="menu-container"></div>
     </main>
@@ -541,6 +547,7 @@
                     name: itemName,
                     option: optionLabel,
                     price: price,
+                    cat: item.category === 'drink' ? 'drink' : (item.category === 'addon' ? 'addon' : 'food'),
                     portions: item.portions || 0,
                     dada: dada,
                     qty: 1
@@ -594,7 +601,7 @@
             const isTausil = selectedOrderType === 'tausil';
             if (isTausil) {
                 feeRow.classList.remove('hidden');
-                document.getElementById('delivery-fee-display').innerText = `${currentDeliveryFee} L.E`;
+                document.getElementById('delivery-fee-display').innerText = (selectedAreaObj && selectedAreaObj.confirm) ? 'Dikonfirmasi admin' : `${currentDeliveryFee} L.E`;
             } else {
                 feeRow.classList.add('hidden');
             }
@@ -602,7 +609,7 @@
             const grand = subtotal + (isTausil ? currentDeliveryFee : 0);
             updateExtras();
             document.getElementById('cart-total-price').innerHTML =
-                `${grand} L.E${idrLine(grand)}`;
+                `${grand} L.E${(isTausil && selectedAreaObj && selectedAreaObj.confirm) ? '<small class="block text-[10px] text-slate-400 font-semibold text-right">+ ongkir (dikonfirmasi admin)</small>' : ''}${idrLine(grand)}`;
         }
 
         function changeQty(index, delta) {
@@ -648,7 +655,8 @@
             } else if (type === 'tausil') {
                 const optionsHtml = deliveryRates.map(r => {
                     const minNote = r.minItems > 1 ? ` (Min. ${r.minItems} Porsi)` : '';
-                    return `<option value="${r.id}">${r.name} - ${r.fee} L.E${minNote}</option>`;
+                    const label = (r.name + (r.confirm ? ' - ongkir dikonfirmasi admin di WhatsApp' : ` - ${r.fee} L.E${minNote}`)).replace(/&/g, '&amp;');
+                    return `<option value="${r.id}">${label}</option>`;
                 }).join('');
 
                 container.innerHTML = `
@@ -735,6 +743,29 @@
         }
 
         // Checkout ke WhatsApp
+        // ----- Format pesan WhatsApp -----
+        function waCat(i) {
+            if (i.cat) return i.cat;
+            if (i.portions > 0) return 'food';
+            const m = menuData.find(x => x.name === i.name);
+            return m && m.category === 'addon' ? 'addon' : 'drink';
+        }
+        function waLabel(i) {
+            if (/^Combo/i.test(i.name)) return `${i.name} (${i.option})`;
+            const parts = (i.option && i.option !== 'Standar') ? i.option.split(' • ') : [];
+            if (waCat(i) !== 'food') return parts.length ? `${i.name} ${parts.join(' ')}` : i.name;
+            const base = i.name.replace(/^Ayam\s+/, '').replace(/\sSambal\s/, ' ');
+            let suffix = '';
+            const extras = [];
+            parts.forEach(p => {
+                if (p === 'Dengan Nasi') suffix = ' + Nasi';
+                else if (p === 'Tanpa Nasi') extras.push('Tanpa Nasi');
+                else if (p.startsWith('Bagian: ')) { const b = p.slice(8); if (b !== 'Bebas') extras.push('Bagian ' + b); }
+                else extras.push(p);
+            });
+            return base + suffix + (extras.length ? ` (${extras.join(' • ')})` : '');
+        }
+
         function checkoutWhatsApp() {
             if (!isOpen()) {
                 alert(`Mohon maaf, warung sedang tutup. Jam operasional 0${BUKA_JAM}:00 - ${TUTUP_JAM}:00 (waktu Kairo).`);
@@ -766,7 +797,7 @@
 
             const isTausil = selectedOrderType === 'tausil';
             let activeDeliveryFee = 0;
-            let activeAreaName = "";
+            let activeAreaName = "", activeAreaShort = "", activeConfirm = false;
 
             if (isTausil) {
                 const selectArea = document.getElementById('select-delivery-area');
@@ -779,6 +810,8 @@
                 if (rate) {
                     activeDeliveryFee = rate.fee;
                     activeAreaName = rate.name;
+                    activeAreaShort = rate.short || rate.name;
+                    activeConfirm = !!rate.confirm;
 
                     if (totalPortions < rate.minItems) {
                         alert(`Pengiriman ke ${rate.name} membutuhkan minimal ${rate.minItems} porsi makanan (saat ini: ${totalPortions} porsi, minuman tidak dihitung). Silakan tambah menu makanan terlebih dahulu.`);
@@ -793,49 +826,42 @@
                 return;
             }
 
-            const typeTitle = selectedOrderType === 'dine-in' ? "DINE IN (Makan di Tempat)" : (isTausil ? "TAUSIL (Pengiriman)" : "TAKE AWAY (Bawa Pulang)");
-            const detailLabel = selectedOrderType === 'dine-in' ? "Nomor Meja" : (isTausil ? "Nomor Imarah" : "Jam Pengambilan");
+            const typeTitle = selectedOrderType === 'dine-in' ? 'DINE IN' : (isTausil ? 'TAUSIL' : 'TAKE AWAY');
+            const detailLabel = selectedOrderType === 'dine-in' ? 'Meja' : (isTausil ? 'Imarah' : 'Jam Ambil');
 
-            // Susun pesan (teks biasa, di-encode di akhir)
             const garis = '----------------------------------';
-            const t = cairoNow();
-            const noPesanan = `#${t.dd}${t.mm}-${t.hh}${t.mi}`;
-            let text = `*PESANAN BARU - GEPREK SABI*\n`;
-            text += `*No. Pesanan:* ${noPesanan} (jam ${t.hh}:${t.mi} Cairo)\n`;
-            text += `${garis}\n`;
-            text += `*Tipe Pemesanan:* ${typeTitle}\n`;
-            text += `*Nama Pemesan:* ${name}\n`;
-            if (isTausil && activeAreaName) {
-                text += `*Wilayah Tausil:* ${activeAreaName}\n`;
-            }
-            text += `*${detailLabel}:* ${detail}\n`;
-            if (isTausil && customerLocation) {
-                text += `*Lokasi Google Maps:* ${customerLocation.link}\n`;
-            }
-            if (note) text += `*Catatan:* ${note}\n`;
-            text += `${garis}\n`;
-            text += `*DETAIL PESANAN:*\n`;
-
-            let subtotal = 0;
-            cart.forEach((item, idx) => {
-                const itemTotal = item.price * item.qty;
-                subtotal += itemTotal;
-                text += `${idx + 1}. ${item.name} (${item.option})\n   ${item.qty} x ${item.price} L.E = *${itemTotal} L.E*\n`;
-            });
-
+            const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
             const grandTotal = subtotal + (isTausil ? activeDeliveryFee : 0);
 
+            let text = `*${typeTitle}*\n`;
+            text += `Nama : *${name}*\n`;
+            if (isTausil && activeAreaShort) text += `Area : *${activeAreaShort}*\n`;
+            text += `${detailLabel} : *${detail}*\n`;
+            if (isTausil && customerLocation) text += `Lokasi : ${customerLocation.link}\n`;
+            if (note) text += `Catatan : *${note}*\n`;
             text += `${garis}\n`;
-            text += `*Subtotal Makanan & Minuman:* ${subtotal} L.E\n`;
-            if (isTausil) {
-                text += `*Ongkos Kirim Tausil (${activeAreaName}):* ${activeDeliveryFee} L.E\n`;
+
+            [['food', 'Makanan'], ['drink', 'Minuman'], ['addon', 'Tambahan']].forEach(([k, title]) => {
+                const rows = cart.filter(i => waCat(i) === k);
+                if (!rows.length) return;
+                text += `*${title} :*\n\n`;
+                rows.forEach((i, n) => {
+                    text += `${n + 1}. ${waLabel(i)} (${i.qty}) - *${i.price * i.qty} LE*\n`;
+                });
+                text += `\n`;
+            });
+
+            text += `${garis}\n`;
+            const belum = (isTausil && activeConfirm) ? ' (belum termasuk ongkir)' : '';
+            if (isTausil && activeConfirm) {
+                text += `Total${belum} : *${grandTotal} LE*\nOngkir : *dikonfirmasi admin*\n`;
+            } else {
+                text += `${isTausil ? 'Total + Ongkir' : 'Total'} : *${grandTotal} LE*\n`;
             }
-            text += `${garis}\n`;
-            text += `*TOTAL PEMBAYARAN: ${grandTotal} L.E*\n`;
             text += selectedPayment === 'tunai'
-                ? `*Metode Bayar:* Tunai (L.E)\n\n`
-                : `*Metode Bayar:* ${selectedPayment === 'qris' ? 'QRIS' : 'Transfer'}\n*Nominal:* ${formatIDR(grandTotal)} (kurs 2,7 L.E = Rp 1.000)\n\n`;
-            text += `Mohon konfirmasi dan segera diproses ya, terima kasih! 🙏`;
+                ? `\nPembayaran : *Tunai*\n`
+                : `\n${selectedPayment === 'qris' ? 'QRIS' : 'Transfer'}${belum} : *${formatIDR(grandTotal)}*\n`;
+            text += `\nTerimakasih`;
 
             window.open(`https://wa.me/${nomorWA}?text=${encodeURIComponent(text)}`, '_blank');
         }
@@ -975,6 +1001,36 @@
             links.push(`<a href="https://wa.me/${nomorWA}" target="_blank" rel="noopener" class="text-brand-red hover:underline">💬 WhatsApp</a>`);
             document.getElementById('footer-links').innerHTML = links.join('<span class="opacity-30">•</span>');
         }
+
+        // ----- Geser (swipe) antar kategori menu -----
+        document.addEventListener('DOMContentLoaded', () => {
+            const area = document;
+            let sx = 0, sy = 0, st = 0, ok = false;
+            area.addEventListener('touchstart', e => {
+                const t = e.touches[0];
+                const overlayOpen = !document.getElementById('cart-drawer-overlay').classList.contains('hidden') || !document.getElementById('option-modal').classList.contains('hidden');
+                ok = !overlayOpen && e.touches.length === 1 && !e.target.closest('header, #category-tabs, input, select, textarea');
+                sx = t.clientX; sy = t.clientY; st = Date.now();
+            }, { passive: true });
+            area.addEventListener('touchend', e => {
+                if (!ok) return;
+                ok = false;
+                const t = e.changedTouches[0];
+                const dx = t.clientX - sx, dy = t.clientY - sy;
+                if (Date.now() - st > 800 || Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.8) return;
+                const list = Array.from(document.querySelectorAll('#category-tabs .tab-btn'));
+                const cur = list.findIndex(b => b.classList.contains('tab-pill-active'));
+                const next = list[cur + (dx < 0 ? 1 : -1)];
+                if (!next) return;
+                next.click();
+                const bar = document.getElementById('category-tabs');
+                const left = next.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft - (bar.clientWidth - next.offsetWidth) / 2;
+                bar.scrollTo({ left: left, behavior: 'smooth' });
+                const head = document.querySelector('header');
+                const top = bar.getBoundingClientRect().top + window.scrollY - (head ? head.offsetHeight : 70) - 8;
+                window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+            }, { passive: true });
+        });
 
         // Inisialisasi
         document.addEventListener('DOMContentLoaded', () => {
