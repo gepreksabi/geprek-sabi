@@ -78,7 +78,6 @@
             <button onclick="filterCategory('basic', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Basic Menu</button>
             <button onclick="filterCategory('special', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">Special Menu</button>
             <button onclick="filterCategory('drink', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">🥤 Minuman</button>
-            <button onclick="filterCategory('addon', this)" class="tab-btn bg-white text-slate-700 hover:bg-slate-100 px-5 py-2 rounded-full font-bold text-xs sm:text-sm whitespace-nowrap border border-amber-200/80 transition">➕ Tambahan</button>
         </div>
 
         <p class="sm:hidden -mt-3 mb-4 text-center text-[10px] text-slate-400 font-semibold">↔ Geser layar ke kiri / kanan untuk pindah kategori</p>
@@ -140,7 +139,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-700">Catatan Tambahan (Opsional)</label>
+                    <label class="block text-[11px] font-bold text-slate-700">Catatan (Opsional)</label>
+                    <p class="text-[10px] text-slate-400 mb-1">Untuk tambahan nasi/sambal/saos, pilih di bagian Tambahan pada keranjang.</p>
                     <input type="text" id="cust-note" placeholder="Contoh: Sambal dipisah / Es batu sedikit" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
                 </div>
             </div>
@@ -257,6 +257,7 @@
 
         // Render Menu
         function renderMenu(items) {
+            items = items.filter(i => i.category !== 'addon');
             const container = document.getElementById('menu-container');
             container.innerHTML = '';
 
@@ -593,6 +594,26 @@
                             </div>
                         </div>`;
                 });
+
+                const addons = menuData.filter(m => m.category === 'addon' && !m.soldOut);
+                if (addons.length) {
+                    let chips = '';
+                    addons.forEach(a => {
+                        if (a.hasOptions) {
+                            a.options.forEach((o, oi) => {
+                                chips += `<button onclick="addAddon('${a.id}', ${oi})" class="px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-brand-darkred text-[11px] font-bold border border-amber-200 transition">${o.icon || a.icon} ${a.name} ${o.label} <span class="text-brand-red">+${o.price}</span></button>`;
+                            });
+                        } else {
+                            chips += `<button onclick="addAddon('${a.id}', -1)" class="px-3 py-1.5 rounded-full bg-amber-100 hover:bg-amber-200 text-brand-darkred text-[11px] font-bold border border-amber-200 transition">${a.icon} ${a.name} <span class="text-brand-red">+${a.price}</span></button>`;
+                        }
+                    });
+                    container.insertAdjacentHTML('afterbegin', `
+                        <div class="mb-1 p-3.5 rounded-2xl border border-dashed border-amber-300 bg-amber-50/60">
+                            <h4 class="font-bold text-xs text-slate-800">➕ Tambahan (Opsional)</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5 mb-2">Mau nambah nasi, sambal, atau saos? Pilih di sini ya, jangan ditulis di catatan.</p>
+                            <div class="flex flex-wrap gap-2">${chips}</div>
+                        </div>`);
+                }
             }
 
             document.getElementById('cart-badge').innerText = totalQty;
@@ -610,6 +631,13 @@
             updateExtras();
             document.getElementById('cart-total-price').innerHTML =
                 `${grand} L.E${(isTausil && selectedAreaObj && selectedAreaObj.confirm) ? '<small class="block text-[10px] text-slate-400 font-semibold text-right">+ ongkir (dikonfirmasi admin)</small>' : ''}${idrLine(grand)}`;
+        }
+
+        function addAddon(id, oi) {
+            const item = menuData.find(m => m.id === id);
+            if (!item || item.soldOut) return;
+            if (oi >= 0) addToCart(item, item.options[oi].price, item.options[oi].label);
+            else addToCart(item, item.price, 'Standar');
         }
 
         function changeQty(index, delta) {
