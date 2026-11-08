@@ -379,13 +379,36 @@
             </div>`;
         }
 
+        // ----- Jatah dada -----
+        function maxDadaFor(p) { return p > 0 ? Math.max(1, Math.floor(p / 2)) : 0; }
+        function dadaUsed() { return cart.reduce((s, i) => s + (i.dada || 0) * i.qty, 0); }
+        // sisa jatah dada bila ditambah menu baru berisi `add` porsi
+        function dadaRoom(add) { return Math.max(0, maxDadaFor(totalPortions() + add) - dadaUsed()); }
+        function dadaFullText(add) {
+            const used = dadaUsed();
+            const target = used + 1 === 1 ? 1 : 2 * (used + 1);
+            return `Jatah dada sudah penuh (${used} dari ${maxDadaFor(totalPortions() + add)}). Dada berikutnya bisa dipesan setelah total porsi mencapai ${target}.`;
+        }
+        function dadaBlocked(key, k, counts) {
+            return key === 'part' && k === 'Dada' && sambalItem && sambalItem.sambalPick
+                && counts.Dada >= dadaRoom(sambalSlotsOf(sambalItem));
+        }
+
         function partToggleHtml() {
+            const add = currentItem ? (currentItem.portions || 0) : 0;
+            const room = dadaRoom(add);
+            if (room < 1 && selectedPart === 'Dada') selectedPart = 'Bebas';
             return `<div>
                 <p class="text-[11px] font-bold text-slate-700 mb-1.5">Pilih Bagian Ayam</p>
-                <div class="grid grid-cols-2 gap-2">${PART_LIST.map(pt => `
-                    <button onclick="setPart('${pt}')" class="${pt === 'Bebas' ? 'col-span-2 ' : ''}py-2.5 rounded-xl font-bold text-xs ${selectedPart === pt ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-600'}">${pt === 'Bebas' ? 'Bebas (yang penting besar)' : pt}</button>`).join('')}
+                <div class="grid grid-cols-2 gap-2">${PART_LIST.map(pt => {
+                    const off = pt === 'Dada' && room < 1;
+                    const cls = off ? 'bg-slate-100 text-slate-300 line-through cursor-not-allowed'
+                        : (selectedPart === pt ? 'bg-brand-red text-white' : 'bg-slate-100 text-slate-600');
+                    return `
+                    <button ${off ? 'disabled' : `onclick="setPart('${pt}')"`} class="${pt === 'Bebas' ? 'col-span-2 ' : ''}py-2.5 rounded-xl font-bold text-xs ${cls}">${pt === 'Bebas' ? 'Bebas (yang penting besar)' : pt}</button>`;
+                }).join('')}
                 </div>
-                <p class="text-[10px] text-slate-400 mt-1.5">Dada dibatasi: 1 porsi boleh 1 dada, selanjutnya maksimal 1 dada untuk setiap 2 porsi pesanan.</p>
+                <p class="text-[10px] mt-1.5 ${room < 1 ? 'text-brand-red font-bold' : 'text-slate-400'}">${room < 1 ? dadaFullText(add) : `Jatah dada: ${dadaUsed()} dari ${maxDadaFor(totalPortions() + add)} terpakai (1 porsi boleh 1 dada, selanjutnya 1 dada tiap 2 porsi).`}</p>
             </div>`;
         }
 
@@ -461,7 +484,7 @@
                     <div class="flex items-center space-x-2">
                         <button onclick="changeCount('${key}', '${k}', -1)" class="w-7 h-7 bg-slate-200 rounded-lg font-bold text-xs">-</button>
                         <span class="text-xs font-bold w-5 text-center">${counts[k]}</span>
-                        <button onclick="changeCount('${key}', '${k}', 1)" class="w-7 h-7 bg-brand-red text-white rounded-lg font-bold text-xs">+</button>
+                        <button onclick="changeCount('${key}', '${k}', 1)" ${dadaBlocked(key, k, counts) ? 'disabled ' : ''}class="w-7 h-7 ${dadaBlocked(key, k, counts) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-brand-red text-white'} rounded-lg font-bold text-xs">+</button>
                     </div>
                 </div>`).join('');
         }
@@ -476,7 +499,8 @@
                 ok = ok && sumOf(styleCounts) === need && sumOf(partCounts) === need;
                 html += stepGroup('Jenis Ayam', styleCounts, 'style', need);
                 html += stepGroup('Bagian Ayam', partCounts, 'part', need);
-                html += `<p class="text-[10px] text-slate-400">Dada dibatasi: 1 porsi boleh 1 dada, selanjutnya maksimal 1 dada untuk setiap 2 porsi pesanan.</p>`;
+                const dRoom = dadaRoom(need);
+                html += `<p class="text-[10px] ${dRoom < 1 ? 'text-brand-red font-bold' : 'text-slate-400'}">${dRoom < 1 ? dadaFullText(need) : `Jatah dada untuk paket ini: maksimal ${dRoom} (1 porsi boleh 1 dada, selanjutnya 1 dada tiap 2 porsi).`}</p>`;
             } else {
                 ok = ok && (!hasStyle(item) || !!selectedStyle);
                 html += `<div class="space-y-3">${choiceHeaderHtml(item)}</div>`;
@@ -494,6 +518,7 @@
         function changeCount(key, k, d) {
             const counts = key === 'style' ? styleCounts : key === 'part' ? partCounts : sambalCounts;
             const need = sambalSlotsOf(sambalItem);
+            if (d > 0 && dadaBlocked(key, k, counts)) return;
             if (d > 0 && need === 1) {
                 Object.keys(counts).forEach(x => counts[x] = 0);
                 counts[k] = 1;
@@ -536,6 +561,7 @@
 
         function addToCart(item, price, optionLabel, dada = 0) {
             if (needStyle(item)) return;
+            if (dada > dadaRoom(item.portions || 0)) { alert(dadaFullText(item.portions || 0)); return; }
             const itemName = hasStyle(item) ? item.name.replace('Geprek/Krispi', selectedStyle) : item.name;
             const cartItemKey = `${itemName} (${optionLabel})`;
             const existing = cart.find(i => i.key === cartItemKey);
@@ -588,9 +614,9 @@
                                 <div class="text-xs text-brand-red font-bold mt-1">${item.price} L.E x ${item.qty} = ${itemTotal} L.E</div>
                             </div>
                             <div class="flex items-center space-x-2 bg-white rounded-xl p-1 shadow-sm border border-slate-100">
-                                <button onclick="changeQty(${index}, -1)" class="w-6 h-6 bg-slate-100 rounded-lg font-bold text-slate-600 text-xs flex items-center justify-center">-</button>
+                                <button onclick="changeQty(${index}, -1)" class="w-6 h-6 bg-slate-100 rounded-lg font-bold text-slate-600 text-xs flex items-center justify-center ${qtyBlocked(index, -1) ? 'opacity-40' : ''}">-</button>
                                 <span class="text-xs font-bold px-1">${item.qty}</span>
-                                <button onclick="changeQty(${index}, 1)" class="w-6 h-6 bg-brand-red text-white rounded-lg font-bold text-xs flex items-center justify-center">+</button>
+                                <button onclick="changeQty(${index}, 1)" class="w-6 h-6 bg-brand-red text-white rounded-lg font-bold text-xs flex items-center justify-center ${qtyBlocked(index, 1) ? 'opacity-40' : ''}">+</button>
                             </div>
                         </div>`;
                 });
@@ -640,7 +666,23 @@
             else addToCart(item, item.price, 'Standar');
         }
 
+                function qtyBlocked(index, delta) {
+            const it = cart[index];
+            const porsi = totalPortions(), dada = dadaUsed();
+            const np = porsi + delta * (it.portions || 0), nd = dada + delta * (it.dada || 0);
+            const ex = (d, p) => Math.max(0, d - maxDadaFor(p));
+            return ex(nd, np) > ex(dada, porsi);
+        }
+
         function changeQty(index, delta) {
+            if (qtyBlocked(index, delta)) {
+                const it = cart[index];
+                const np = totalPortions() + delta * (it.portions || 0), nd = dadaUsed() + delta * (it.dada || 0);
+                alert(delta > 0
+                    ? `Jatah dada penuh, jadi menu berisi dada ini tidak bisa ditambah lagi. Untuk ${np} porsi maksimal ${maxDadaFor(np)} dada. Tambah porsi tanpa dada dulu.`
+                    : `Porsi ini tidak bisa dikurangi karena jatah dada akan terlampaui (${nd} dada untuk ${np} porsi, maksimal ${maxDadaFor(np)}). Kurangi pesanan yang berisi dada dulu.`);
+                return;
+            }
             cart[index].qty += delta;
             if (cart[index].qty <= 0) cart.splice(index, 1);
             updateCartUI();
@@ -936,7 +978,7 @@
         function dadaStatus() {
             const dada = cart.reduce((sum, i) => sum + (i.dada || 0) * i.qty, 0);
             const porsi = totalPortions();
-            const max = porsi > 0 ? Math.max(1, Math.floor(porsi / 2)) : 0;
+            const max = maxDadaFor(porsi);
             return { dada, porsi, max, over: dada > max };
         }
         function totalPortions() {
