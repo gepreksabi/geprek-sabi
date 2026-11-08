@@ -856,7 +856,7 @@
             if (isTausil && activeConfirm) {
                 text += `Total${belum} : *${grandTotal} LE*\nOngkir : *dikonfirmasi admin*\n`;
             } else {
-                text += `${isTausil ? 'Total + Ongkir' : 'Total'} : *${grandTotal} LE*\n`;
+                text += `${isTausil ? `Total + Ongkir (${activeDeliveryFee} LE)` : 'Total'} : *${grandTotal} LE*\n`;
             }
             text += selectedPayment === 'tunai'
                 ? `\nPembayaran : *Tunai*\n`
