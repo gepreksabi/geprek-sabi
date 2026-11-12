@@ -743,6 +743,11 @@
                             <input type="text" id="cust-detail" value="${savedImarah()}" oninput="saveCustomer()" placeholder="Contoh: Imarah 12" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
                         </div>
                         <div>
+                            <label class="block text-[11px] font-bold text-slate-700">Nama Jalan *</label>
+                            <input type="text" id="cust-street" value="${savedStreet()}" data-manual="${savedStreet() ? '1' : ''}" oninput="onStreetInput()" placeholder="Contoh: Syari' Abbas Akkad" class="w-full text-xs p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-red bg-white">
+                            <p id="street-status" class="text-[10px] text-slate-400 mt-1">Tulis nama jalan atau patokan terdekat. Bisa terisi otomatis lewat tombol lokasi di bawah.</p>
+                        </div>
+                        <div>
                             <label class="block text-[11px] font-bold text-slate-700">Lokasi di Google Maps (Opsional)</label>
                             <button type="button" id="btn-share-location" onclick="shareLocation()" class="w-full text-xs font-bold p-3 border border-slate-200 rounded-xl bg-white text-slate-700 hover:bg-slate-100 transition">
                                 📍 Bagikan Lokasi Saya
@@ -769,6 +774,54 @@
         }
 
         // Bagikan lokasi (Google Maps)
+        // ----- Nama jalan (isi otomatis dari lokasi, tetap bisa diedit) -----
+        let streetSuggestion = '';
+        function escHtml(t) { return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function savedStreet() { return (getSavedCustomer().street || '').replace(/"/g, '&quot;'); }
+        function setStreetStatus(html) { const el = document.getElementById('street-status'); if (el) el.innerHTML = html; }
+        function onStreetInput() {
+            const el = document.getElementById('cust-street');
+            if (el) el.dataset.manual = '1';
+            saveCustomer();
+        }
+        function useStreetSuggestion() {
+            const el = document.getElementById('cust-street');
+            if (!el || !streetSuggestion) return;
+            el.value = streetSuggestion; el.dataset.manual = '';
+            saveCustomer();
+            setStreetStatus('✅ Terisi dari lokasi. Mohon cek dan perbaiki bila kurang tepat.');
+        }
+        function applyStreetSuggestion(road) {
+            const el = document.getElementById('cust-street');
+            if (!el) return;
+            streetSuggestion = road;
+            if (!el.value.trim() || el.dataset.manual !== '1') {
+                useStreetSuggestion();
+            } else if (el.value.trim().toLowerCase() !== road.toLowerCase()) {
+                setStreetStatus(`Saran dari lokasi: <b>${escHtml(road)}</b> <button type="button" onclick="useStreetSuggestion()" class="text-brand-red font-bold underline">Pakai</button>`);
+            } else {
+                setStreetStatus('✅ Sesuai dengan lokasimu.');
+            }
+        }
+        async function suggestStreet(lat, lng) {
+            if (!document.getElementById('cust-street')) return;
+            setStreetStatus('Mencari nama jalan dari lokasimu...');
+            try {
+                const ctl = new AbortController();
+                const timer = setTimeout(() => ctl.abort(), 7000);
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&accept-language=id,en&lat=${lat}&lon=${lng}`, { signal: ctl.signal, headers: { 'Accept': 'application/json' } });
+                clearTimeout(timer);
+                if (!res.ok) throw new Error('http ' + res.status);
+                const d = await res.json();
+                const a = d.address || {};
+                const road = a.road || a.pedestrian || a.footway || a.residential || a.living_street || a.path || '';
+                if (!road) throw new Error('kosong');
+                applyStreetSuggestion(road);
+            } catch (e) {
+                setStreetStatus('Nama jalan tidak terbaca otomatis. Mohon isi manual ya.');
+            }
+        }
+
         function shareLocation() {
             const status = document.getElementById('location-status');
             const btn = document.getElementById('btn-share-location');
@@ -795,6 +848,7 @@
 
                     btn.disabled = false;
                     btn.innerText = '✅ Lokasi Tersimpan (klik untuk perbarui)';
+                    suggestStreet(lat, lng);
                     status.innerHTML = `Lokasi berhasil diambil (akurasi ±${acc} m). <a href="${customerLocation.link}" target="_blank" class="text-brand-red font-bold underline">Cek di Maps</a>`;
                 },
                 (err) => {
@@ -896,6 +950,13 @@
                 return;
             }
 
+            const streetEl = document.getElementById('cust-street');
+            const street = isTausil && streetEl ? streetEl.value.trim() : '';
+            if (isTausil && !street) {
+                alert("Mohon isi Nama Jalan terlebih dahulu.");
+                return;
+            }
+
             const typeTitle = selectedOrderType === 'dine-in' ? 'DINE IN' : (isTausil ? 'TAUSIL' : 'TAKE AWAY');
             const detailLabel = selectedOrderType === 'dine-in' ? 'Meja' : (isTausil ? 'Imarah' : 'Jam Ambil');
 
@@ -907,6 +968,7 @@
             text += `Nama : *${name}*\n`;
             if (isTausil && activeAreaShort) text += `Area : *${activeAreaShort}*\n`;
             text += `${detailLabel} : *${detail}*\n`;
+            if (isTausil && street) text += `Jalan : *${street}*\n`;
             if (isTausil && customerLocation) text += `Lokasi : ${customerLocation.link}\n`;
             if (note) text += `Catatan : *${note}*\n`;
             text += `${garis}\n`;
@@ -1023,7 +1085,8 @@
                 const im = document.getElementById('cust-detail');
                 localStorage.setItem(CUST_KEY, JSON.stringify({
                     name: document.getElementById('cust-name').value,
-                    imarah: selectedOrderType === 'tausil' && im ? im.value : (old.imarah || '')
+                    imarah: selectedOrderType === 'tausil' && im ? im.value : (old.imarah || ''),
+                    street: selectedOrderType === 'tausil' && document.getElementById('cust-street') ? document.getElementById('cust-street').value : (old.street || '')
                 }));
             } catch (e) {}
         }
